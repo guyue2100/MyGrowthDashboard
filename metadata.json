@@ -1,0 +1,5 @@
+{
+  "name": "成长看板 (Growth Dashboard)",
+  "description": "极简的孩子生长发育评估工具，支持身高、体重录入，自动对比 WHO 生长发育曲线并提供百分位评估。",
+  "requestFramePermissions": []
+}
