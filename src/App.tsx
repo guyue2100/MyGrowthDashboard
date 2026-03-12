@@ -1,4 +1,3 @@
-import HeightPredictor from './components/HeightPredictor';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { differenceInDays, parseISO } from 'date-fns';
@@ -9,6 +8,7 @@ import {
 } from 'lucide-react';
 import { GrowthChart } from './components/GrowthChart';
 import { GrowthAssessmentForm } from './components/GrowthAssessmentForm';
+import { HeightPredictor } from './components/HeightPredictor';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { GrowthRecord } from './types';
 
@@ -44,6 +44,8 @@ export default function App() {
     return saved ? JSON.parse(saved) : {
       gender: 'boy',
       birthday: new Date().toISOString().split('T')[0],
+      fatherHeight: '',
+      motherHeight: '',
       measurements: [{ date: new Date().toISOString().split('T')[0], height: '', weight: '' }]
     };
   });
@@ -88,15 +90,6 @@ export default function App() {
               initialData={assessmentData} 
               onSubmit={handleAssessmentSubmit} 
             />
-            {/* 在表单下方插入预测组件 */}
-        {latestRecord && (
-          <HeightPredictor 
-            currentHeight={latestRecord.height} 
-            fatherHeight={175} 
-            motherHeight={160} 
-            gender="boy" 
-          />
-        )}
           </div>
         </div>
 
@@ -116,6 +109,14 @@ export default function App() {
               </div>
             </div>
           )}
+
+          <HeightPredictor 
+            gender={assessmentData.gender}
+            fatherHeight={assessmentData.fatherHeight}
+            motherHeight={assessmentData.motherHeight}
+            latestHeight={latestRecord?.height}
+            latestAgeInMonths={latestRecord?.ageInMonths}
+          />
 
           <section className="bg-white p-10 rounded-[3rem] shadow-sm border border-black/5 space-y-10">
             <div className="flex items-center justify-between">
