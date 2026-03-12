@@ -7,55 +7,50 @@ export const SaveReportButton = ({ targetId }: { targetId: string }) => {
 
   const handleSave = async () => {
     const element = document.getElementById(targetId);
-    if (!element) {
-      alert("未找到报告区域，请刷新重试");
-      return;
-    }
+    if (!element) return;
 
     setIsGenerating(true);
 
     try {
-      // 1. 给图表一点时间停止一切内部计算
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 1. 强制清理 Recharts 留下的测量残余，这些是截图崩溃的罪魁祸首
+      const spans = document.querySelectorAll('span[id^="recharts_measurement_span"]');
+      spans.forEach(span => span.remove());
 
+      // 2. 使用更轻量、不干涉内部逻辑的截图配置
       const canvas = await html2canvas(element, {
-        scale: 2, 
+        scale: 1.5,
         useCORS: true,
         backgroundColor: '#ffffff',
-        // 关键：忽略 Recharts 用来辅助测量文字宽度的临时 Span，防止其干扰截图逻辑
-        ignoreElements: (el) => {
-          return el.id === 'recharts_measurement_span' || el.hasAttribute('aria-hidden');
-        },
-        // 2. 深度克隆处理：强制锁定 SVG 尺寸
+        // 关键：彻底禁用所有的克隆优化，只做纯静态截取
+        foreignObjectRendering: false, 
+        async: true,
+        logging: false,
         onclone: (clonedDoc) => {
-          // 处理所有的 SVG，防止在克隆文档中塌陷
+          // 彻底移除克隆文档中的隐藏测量元素
+          const hiddenStuff = clonedDoc.querySelectorAll('[aria-hidden="true"], .recharts-legend-wrapper');
+          hiddenStuff.forEach(el => (el as HTMLElement).style.display = 'none');
+          
+          // 给所有 SVG 强制加上宽高，防止在 Canvas 中缩成 0
           const svgs = clonedDoc.querySelectorAll('svg');
           svgs.forEach(svg => {
-            const bbox = svg.getBoundingClientRect();
-            if (bbox.width > 0) {
-              svg.setAttribute('width', bbox.width.toString());
-              svg.setAttribute('height', bbox.height.toString());
-            }
+            svg.setAttribute('width', svg.getBoundingClientRect().width.toString());
+            svg.setAttribute('height', svg.getBoundingClientRect().height.toString());
           });
-          
-          // 隐藏克隆版中的按钮
-          const btn = clonedDoc.querySelector('button');
-          if (btn) btn.style.display = 'none';
         }
       });
 
-      // 3. 采用最稳定的下载方案
-      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      // 3. 稳健的下载触发
+      const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
-      link.download = `宝宝成长报告-${new Date().getTime()}.png`;
+      link.download = `baby-report-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
     } catch (err) {
-      console.error("保存失败具体日志:", err);
-      alert("生成失败，请确认是否已在 App.tsx 中正确设置 id='report-area'");
+      console.error("捕获到崩溃:", err);
+      alert("由于浏览器兼容性限制，请尝试长按页面手动截图保存。");
     } finally {
       setIsGenerating(false);
     }
@@ -65,10 +60,9 @@ export const SaveReportButton = ({ targetId }: { targetId: string }) => {
     <button 
       onClick={handleSave} 
       disabled={isGenerating}
-      className="w-full max-w-md flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-[2rem] font-bold shadow-xl hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50"
+      className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl active:scale-95 transition-all disabled:opacity-50"
     >
-      {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : <Download className="w-5 h-5" />}
-      {isGenerating ? '正在生成精美分享图...' : '保存精美评估报告'}
+      {isGenerating ? <Loader2 className="animate-spin mx-auto" /> : '保存评估报告'}
     </button>
   );
 };
