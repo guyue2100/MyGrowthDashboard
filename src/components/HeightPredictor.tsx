@@ -1,54 +1,49 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const HeightPredictor = ({ currentHeight, fatherHeight, motherHeight, gender }) => {
-  const [isPaid, setIsPaid] = useState(false);
-
-  // 遗传身高计算逻辑
+  // 核心遗传算法 (FPH)
   const midParentHeight = gender === 'boy' 
     ? (fatherHeight + motherHeight + 13) / 2 
     : (fatherHeight + motherHeight - 13) / 2;
 
   return (
-    <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-indigo-100 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-indigo-900">📊 成年身高 AI 预测</h3>
-        <span className="px-2 py-1 bg-indigo-100 text-indigo-600 text-xs rounded-full font-medium">高级版</span>
-      </div>
+    <div className="mt-6 p-6 bg-white rounded-[2.5rem] border-2 border-indigo-50 shadow-sm relative overflow-hidden">
+      {/* 背景装饰：淡淡的渐变圆圈，增加设计感 */}
+      <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-50 rounded-full opacity-50"></div>
 
-      <div className="space-y-4">
-        <div className="flex justify-between items-center text-sm text-gray-600">
-          <span>遗传潜力范围:</span>
-          <span className="font-mono font-medium">
-            {(midParentHeight - 5).toFixed(1)}cm - {(midParentHeight + 5).toFixed(1)}cm
-          </span>
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-6 bg-indigo-500 rounded-full"></div>
+          <h3 className="text-lg font-black text-zinc-800">成年身高 AI 预测</h3>
         </div>
 
-        <div className="relative py-4 bg-white rounded-xl border border-dashed border-indigo-200 flex flex-col items-center justify-center overflow-hidden">
-          <p className="text-sm text-gray-500 mb-1">预计成年最终身高</p>
-          
-          {/* 核心模糊遮罩区域 */}
-          <div className="relative">
-            <span className={`text-4xl font-black text-indigo-600 ${!isPaid ? 'blur-md select-none' : ''}`}>
-              {midParentHeight.toFixed(1)}
+        <div className="grid grid-cols-1 gap-4">
+          {/* 核心结果展示 */}
+          <div className="bg-indigo-50/50 p-5 rounded-3xl text-center border border-indigo-100/50">
+            <p className="text-xs text-indigo-400 font-bold uppercase tracking-wider mb-1">预计成年最终身高</p>
+            <div className="flex items-baseline justify-center">
+              <span className="text-5xl font-black text-indigo-600">
+                {midParentHeight.toFixed(1)}
+              </span>
+              <span className="text-lg font-bold text-indigo-400 ml-1">cm</span>
+            </div>
+          </div>
+
+          {/* 辅助信息：遗传潜力区间 */}
+          <div className="flex justify-between items-center px-4 py-3 bg-zinc-50 rounded-2xl text-sm">
+            <span className="text-zinc-500 font-medium">遗传潜力区间</span>
+            <span className="text-zinc-800 font-black font-mono">
+              {(midParentHeight - 6.5).toFixed(1)} - {(midParentHeight + 6.5).toFixed(1)} cm
             </span>
-            <span className={`text-xl font-bold text-indigo-600 ml-1 ${!isPaid ? 'blur-sm' : ''}`}>cm</span>
-            
-            {!isPaid && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <button 
-                  onClick={() => alert('跳转支付逻辑...')} 
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg transform transition active:scale-95"
-                >
-                  ￥9.9 解锁精准预测
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
-        <p className="text-[10px] text-gray-400 text-center italic">
-          * 基于 FPH 遗传算法及当前生长曲线百分位综合测算
-        </p>
+        <div className="mt-4 flex items-start gap-2 p-3 bg-amber-50/50 rounded-2xl border border-amber-100/50">
+          <span className="text-lg">💡</span>
+          <p className="text-[11px] text-amber-700 leading-relaxed">
+            <b>贴心提醒：</b>遗传因素占身高的 70%，后天的营养、运动和睡眠可帮助宝宝在遗传区间内争取更好的表现。
+          </p>
+        </div>
       </div>
     </div>
   );
