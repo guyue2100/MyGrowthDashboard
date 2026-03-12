@@ -1,3 +1,4 @@
+import HeightPredictor from './components/HeightPredictor';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { differenceInDays, parseISO } from 'date-fns';
@@ -87,6 +88,15 @@ export default function App() {
               initialData={assessmentData} 
               onSubmit={handleAssessmentSubmit} 
             />
+            {/* 在表单下方插入预测组件 */}
+        {latestRecord && (
+          <HeightPredictor 
+            currentHeight={latestRecord.height} 
+            fatherHeight={175} 
+            motherHeight={160} 
+            gender="boy" 
+          />
+        )}
           </div>
         </div>
 
