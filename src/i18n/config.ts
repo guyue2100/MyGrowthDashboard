@@ -35,7 +35,15 @@ const resources = {
       unitHeight: 'cm',
       unitWeight: 'kg',
       delete: 'Delete',
-      value: 'Value'
+      value: 'Value',
+      aiPredictor: 'AI Height Predictor',
+      fatherHeight: 'Father\'s Height',
+      motherHeight: 'Mother\'s Height',
+      predictedHeight: 'Predicted Adult Height',
+      fuzzyRange: 'Estimated Range',
+      predictionLogic: 'Based on Mid-parental Height & Current Growth Percentile',
+      cm: 'cm',
+      predictionDesc: 'This is a statistical prediction and may vary based on nutrition, exercise, and health.'
     }
   },
   zh: {
@@ -70,7 +78,15 @@ const resources = {
       unitHeight: 'cm',
       unitWeight: 'kg',
       delete: '删除',
-      value: '数值'
+      value: '数值',
+      aiPredictor: 'AI 身高预测',
+      fatherHeight: '父亲身高',
+      motherHeight: '母亲身高',
+      predictedHeight: '预测成年身高',
+      fuzzyRange: '估算范围',
+      predictionLogic: '基于父母遗传身高及当前生长百分位',
+      cm: '厘米',
+      predictionDesc: '此预测基于统计学模型，实际身高受营养、运动及健康状况影响。'
     }
   },
   ja: {
@@ -105,7 +121,15 @@ const resources = {
       unitHeight: 'cm',
       unitWeight: 'kg',
       delete: '削除',
-      value: '数値'
+      value: '数値',
+      aiPredictor: 'AI身長予測',
+      fatherHeight: '父親の身長',
+      motherHeight: '母親の身長',
+      predictedHeight: '予測成人身長',
+      fuzzyRange: '推定範囲',
+      predictionLogic: '遺伝と現在の成長曲線に基づく',
+      cm: 'cm',
+      predictionDesc: 'この予測は統計モデルに基づいており、栄養、運動、健康状態によって変化します。'
     }
   },
   ko: {
@@ -140,7 +164,15 @@ const resources = {
       unitHeight: 'cm',
       unitWeight: 'kg',
       delete: '삭제',
-      value: '수치'
+      value: '수치',
+      aiPredictor: 'AI 키 예측',
+      fatherHeight: '아버지 키',
+      motherHeight: '어머니 키',
+      predictedHeight: '예상 성인 키',
+      fuzzyRange: '예상 범위',
+      predictionLogic: '유전 및 현재 성장 곡선 기준',
+      cm: 'cm',
+      predictionDesc: '이 예측은 통계 모델을 기반으로 하며 영양, 운동 및 건강 상태에 따라 달라질 수 있습니다.'
     }
   },
   es: {
@@ -175,7 +207,15 @@ const resources = {
       unitHeight: 'cm',
       unitWeight: 'kg',
       delete: 'Eliminar',
-      value: 'Valor'
+      value: 'Valor',
+      aiPredictor: 'Predictor de Altura AI',
+      fatherHeight: 'Altura del Padre',
+      motherHeight: 'Altura de la Madre',
+      predictedHeight: 'Altura Adulta Predicha',
+      fuzzyRange: 'Rango Estimado',
+      predictionLogic: 'Basado en Altura Media Parental y Percentil Actual',
+      cm: 'cm',
+      predictionDesc: 'Esta es una predicción estadística y puede variar según la nutrición, el ejercicio y la salud.'
     }
   },
   pt: {
@@ -210,7 +250,15 @@ const resources = {
       unitHeight: 'cm',
       unitWeight: 'kg',
       delete: 'Excluir',
-      value: 'Valor'
+      value: 'Valor',
+      aiPredictor: 'Preditor de Altura AI',
+      fatherHeight: 'Altura do Pai',
+      motherHeight: 'Altura da Mãe',
+      predictedHeight: 'Altura Adulta Prevista',
+      fuzzyRange: 'Intervalo Estimado',
+      predictionLogic: 'Baseado na Altura Média Parental e Percentil Atual',
+      cm: 'cm',
+      predictionDesc: 'Esta é uma previsão estatística e pode variar com base na nutrição, exercício e saúde.'
     }
   },
   de: {
@@ -245,7 +293,15 @@ const resources = {
       unitHeight: 'cm',
       unitWeight: 'kg',
       delete: 'Löschen',
-      value: 'Wert'
+      value: 'Wert',
+      aiPredictor: 'KI-Größenprognose',
+      fatherHeight: 'Größe des Vaters',
+      motherHeight: 'Größe der Mutter',
+      predictedHeight: 'Voraussichtliche Erwachsenengröße',
+      fuzzyRange: 'Geschätzter Bereich',
+      predictionLogic: 'Basierend auf elterlicher Durchschnittsgröße & aktuellem Perzentil',
+      cm: 'cm',
+      predictionDesc: 'Dies ist eine statistische Vorhersage und kann je nach Ernährung, Bewegung und Gesundheit variieren.'
     }
   }
 };
