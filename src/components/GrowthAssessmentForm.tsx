@@ -12,6 +12,8 @@ export interface Measurement {
 export interface AssessmentData {
   gender: Gender;
   birthday: string;
+  fatherHeight?: string;
+  motherHeight?: string;
   measurements: Measurement[];
 }
 
@@ -47,6 +49,8 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
   const { t } = useTranslation();
   const [gender, setGender] = useState<Gender>(initialData?.gender || 'boy');
   const [birthday, setBirthday] = useState(initialData?.birthday || '');
+  const [fatherHeight, setFatherHeight] = useState(initialData?.fatherHeight || '');
+  const [motherHeight, setMotherHeight] = useState(initialData?.motherHeight || '');
   const [measurements, setMeasurements] = useState<Measurement[]>(
     initialData?.measurements || [
       { date: new Date().toISOString().split('T')[0], height: '', weight: '' }
@@ -74,7 +78,7 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!birthday || measurements.some(m => !m.date || !m.height || !m.weight)) return;
-    onSubmit({ gender, birthday, measurements });
+    onSubmit({ gender, birthday, fatherHeight, motherHeight, measurements });
   };
 
   return (
@@ -131,6 +135,36 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
                 onChange={(e) => setBirthday(e.target.value)}
                 className="w-full bg-transparent border-none focus:ring-0 font-medium"
                 required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('fatherHeight')} (cm)</label>
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+              <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
+              <input
+                type="number"
+                step="0.1"
+                value={fatherHeight}
+                onChange={(e) => setFatherHeight(e.target.value)}
+                placeholder="175"
+                className="w-full bg-transparent border-none focus:ring-0 font-medium"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('motherHeight')} (cm)</label>
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+              <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
+              <input
+                type="number"
+                step="0.1"
+                value={motherHeight}
+                onChange={(e) => setMotherHeight(e.target.value)}
+                placeholder="162"
+                className="w-full bg-transparent border-none focus:ring-0 font-medium"
               />
             </div>
           </div>

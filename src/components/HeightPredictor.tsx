@@ -1,52 +1,126 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Sparkles, Info } from 'lucide-react';
+import { 
+  WHO_DATA, 
+  getInterpolatedLMS, 
+  calculateZScore, 
+  zScoreToPercentile,
+  Gender
+} from '../services/growthCalculations';
 
-const HeightPredictor = ({ currentHeight, fatherHeight, motherHeight, gender }) => {
-  // 核心遗传算法 (FPH)
-  const midParentHeight = gender === 'boy' 
-    ? (fatherHeight + motherHeight + 13) / 2 
-    : (fatherHeight + motherHeight - 13) / 2;
+interface HeightPredictorProps {
+  gender: Gender;
+  fatherHeight?: string;
+  motherHeight?: string;
+  latestHeight?: number;
+  latestAgeInMonths?: number;
+}
+
+export const HeightPredictor: React.FC<HeightPredictorProps> = ({
+  gender,
+  fatherHeight,
+  motherHeight,
+  latestHeight,
+  latestAgeInMonths
+}) => {
+  const { t } = useTranslation();
+
+  const prediction = useMemo(() => {
+    const f = parseFloat(fatherHeight || '0');
+    const m = parseFloat(motherHeight || '0');
+
+    if (!f || !m) return null;
+
+    // 1. Mid-parental Height (MPH)
+    const mphBase = (f + m + (gender === 'boy' ? 13 : -13)) / 2;
+    const mphRange = [mphBase - 5, mphBase + 5];
+
+    // 2. Growth Curve Projection
+    let curvePrediction = null;
+    if (latestHeight && latestAgeInMonths !== undefined) {
+      const lms = getInterpolatedLMS(latestAgeInMonths, WHO_DATA[gender].height);
+      const zScore = calculateZScore(latestHeight, lms);
+      
+      // Project to 20 years (240 months)
+      const adultLMS = WHO_DATA[gender].height.find(d => d.month === 240) || WHO_DATA[gender].height[WHO_DATA[gender].height.length - 1];
+      // Adult height = M * (1 + L*S*Z)^(1/L) if L != 0, else M * exp(S*Z)
+      // Our calculateZScore is ( (val/M)^L - 1 ) / (L*S)
+      // So val = M * (1 + L*S*Z)^(1/L)
+      const projectedHeight = adultLMS.M * Math.pow(1 + adultLMS.L * adultLMS.S * zScore, 1 / adultLMS.L);
+      curvePrediction = projectedHeight;
+    }
+
+    // 3. Combined "AI" Fuzzy Prediction
+    let finalTarget = mphBase;
+    if (curvePrediction) {
+      // Weighting: 40% Genetics, 60% Current Growth (as current growth reflects both genetics and environment)
+      finalTarget = (mphBase * 0.4) + (curvePrediction * 0.6);
+    }
+
+    return {
+      mph: mphBase,
+      curve: curvePrediction,
+      final: finalTarget,
+      range: [finalTarget - 4, finalTarget + 4]
+    };
+  }, [gender, fatherHeight, motherHeight, latestHeight, latestAgeInMonths]);
+
+  if (!prediction) return null;
 
   return (
-    <div className="mt-6 p-6 bg-white rounded-[2.5rem] border-2 border-indigo-50 shadow-sm relative overflow-hidden">
-      {/* 背景装饰：淡淡的渐变圆圈，增加设计感 */}
-      <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-50 rounded-full opacity-50"></div>
+    <div className="bg-gradient-to-br from-indigo-50 to-violet-50 p-8 rounded-[2.5rem] border border-indigo-100 shadow-sm space-y-6 relative overflow-hidden group">
+      <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/50 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+      
+      <div className="flex items-center justify-between relative z-10">
+        <h3 className="text-lg font-black text-indigo-900 flex items-center">
+          <Sparkles className="w-5 h-5 mr-2 text-indigo-500 animate-pulse" />
+          {t('aiPredictor')}
+        </h3>
+        <div className="bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border border-indigo-200 flex items-center">
+          <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-tighter">{t('predictionLogic')}</span>
+        </div>
+      </div>
 
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-2 h-6 bg-indigo-500 rounded-full"></div>
-          <h3 className="text-lg font-black text-zinc-800">成年身高 AI 预测</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+        <div className="space-y-4">
+          <div className="bg-white/60 p-6 rounded-3xl border border-white">
+            <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-1">{t('predictedHeight')}</p>
+            <div className="flex items-baseline">
+              <span className="text-4xl font-black text-indigo-600">{prediction.final.toFixed(1)}</span>
+              <span className="text-sm font-bold text-indigo-300 ml-1">{t('cm')}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 text-indigo-400 px-2">
+            <Info className="w-4 h-4 flex-shrink-0" />
+            <p className="text-[10px] leading-tight font-medium">{t('predictionDesc')}</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          {/* 核心结果展示 */}
-          <div className="bg-indigo-50/50 p-5 rounded-3xl text-center border border-indigo-100/50">
-            <p className="text-xs text-indigo-400 font-bold uppercase tracking-wider mb-1">预计成年最终身高</p>
-            <div className="flex items-baseline justify-center">
-              <span className="text-5xl font-black text-indigo-600">
-                {midParentHeight.toFixed(1)}
-              </span>
-              <span className="text-lg font-bold text-indigo-400 ml-1">cm</span>
+        <div className="space-y-4">
+          <div className="bg-indigo-600 p-6 rounded-3xl shadow-lg shadow-indigo-200">
+            <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-1">{t('fuzzyRange')}</p>
+            <div className="flex items-baseline text-white">
+              <span className="text-2xl font-black">{prediction.range[0].toFixed(0)}</span>
+              <span className="mx-2 opacity-50 font-bold">-</span>
+              <span className="text-2xl font-black">{prediction.range[1].toFixed(0)}</span>
+              <span className="text-sm font-bold opacity-70 ml-1">{t('cm')}</span>
             </div>
           </div>
 
-          {/* 辅助信息：遗传潜力区间 */}
-          <div className="flex justify-between items-center px-4 py-3 bg-zinc-50 rounded-2xl text-sm">
-            <span className="text-zinc-500 font-medium">遗传潜力区间</span>
-            <span className="text-zinc-800 font-black font-mono">
-              {(midParentHeight - 6.5).toFixed(1)} - {(midParentHeight + 6.5).toFixed(1)} cm
-            </span>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/40 p-4 rounded-2xl border border-white/50">
+              <p className="text-[9px] font-bold text-indigo-300 uppercase mb-1">{t('fatherHeight')}</p>
+              <p className="text-sm font-black text-indigo-900">{fatherHeight}cm</p>
+            </div>
+            <div className="bg-white/40 p-4 rounded-2xl border border-white/50">
+              <p className="text-[9px] font-bold text-indigo-300 uppercase mb-1">{t('motherHeight')}</p>
+              <p className="text-sm font-black text-indigo-900">{motherHeight}cm</p>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-4 flex items-start gap-2 p-3 bg-amber-50/50 rounded-2xl border border-amber-100/50">
-          <span className="text-lg">💡</span>
-          <p className="text-[11px] text-amber-700 leading-relaxed">
-            <b>贴心提醒：</b>遗传因素占身高的 70%，后天的营养、运动和睡眠可帮助宝宝在遗传区间内争取更好的表现。
-          </p>
         </div>
       </div>
     </div>
   );
 };
-
-export default HeightPredictor;
