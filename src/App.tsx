@@ -74,8 +74,7 @@ export default function App() {
   }, [assessmentData]);
 
   const latestRecord = records[records.length - 1];
-
-  return (
+return (
     <div className="min-h-screen pb-10 md:pb-20 pt-6 md:pt-12">
       {/* Language Switcher Floating */}
       <div className="fixed top-4 right-4 md:top-6 md:right-6 z-50">
@@ -143,10 +142,12 @@ export default function App() {
               />
             </div>
           </section>
-          <article className="mt-12 p-8 md:p-10 bg-white/60 backdrop-blur-sm rounded-[3rem] border border-white shadow-sm space-y-6">
+
+          {/* 📍 科学科普区域 - 已修正闭合标签错误 */}
+          <article id="science-section" className="mt-12 p-8 md:p-10 bg-white/60 backdrop-blur-sm rounded-[3rem] border border-white shadow-sm space-y-6 text-zinc-800">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
-              <h2 className="text-xl font-bold text-zinc-800">科学原理：如何预测孩子未来的“海拔”？</h2>
+              <h2 className="text-xl font-bold">科学原理：如何预测孩子未来的“海拔”？</h2>
             </div>
             
             <div className="text-zinc-600 leading-relaxed space-y-5 text-sm md:text-base">
@@ -158,8 +159,8 @@ export default function App() {
                 <h3 className="font-bold text-zinc-700 mb-3 flex items-center gap-2">
                   什么是 FPH 遗传预测公式？
                 </h3>
-                <p className="mb-4 text-sm">
-                  本工具采用了国际公认的 <strong>FPH (Final Parental Height)</strong> 公式，也被称为“靶身高”计算法。这是临床儿科医生用于初步评估生长潜力的主流模型：
+                <p className="mb-4 text-sm text-zinc-500">
+                  本工具采用了国际公认的 <strong>FPH (Final Parental Height)</strong> 公式，也被称为“靶身高”计算法。
                 </p>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <li className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
@@ -173,33 +174,26 @@ export default function App() {
                 </ul>
               </div>
 
-              <div className="space-y-3">
-                <h3 className="font-bold text-zinc-700">遗传区间：上限与下限的博弈</h3>
-                <p className="text-zinc-500 text-sm italic">
-                  公式末尾的 ± 6.5 cm 代表了生长的“潜力范围”：
-                </p>
-                <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-3 text-zinc-600">
+                <h3 className="font-bold text-zinc-700 text-sm">遗传区间：上限与下限的博弈</h3>
+                <p className="text-zinc-500 text-xs italic mb-2">公式末尾的 ± 6.5 cm 代表了生长的“潜力范围”：</p>
+                <div className="grid grid-cols-1 gap-4">
                   <div className="flex gap-3 items-start">
                     <span className="flex-shrink-0 w-5 h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs">↑</span>
-                    <p className="text-sm"><strong>上限：</strong>代表在营养充足、睡眠高质量、运动科学的理想环境下，孩子所能触达的遗传天花板。</p>
+                    <p className="text-sm"><strong>上限：</strong>代表在营养、睡眠、运动理想环境下，孩子所能触达的遗传天花板。</p>
                   </div>
                   <div className="flex gap-3 items-start">
                     <span className="flex-shrink-0 w-5 h-5 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs">↓</span>
-                    <p className="text-sm"><strong>下限：</strong>如果长期存在睡眠不足、挑食厌食或缺乏运动等不利因素，可能会导致生长潜力无法完全释放。</p>
+                    <p className="text-sm"><strong>下限：</strong>如果存在睡眠不足或缺乏运动等因素，可能导致生长潜力无法释放。</p>
                   </div>
                 </div>
               </div>
 
-              <p className="pt-4 border-t border-zinc-100 text-xs text-zinc-400 text-center">
-                * 本工具仅供家庭日常记录参考，如发育明显偏离标准曲线，请及时咨询专业医师。
+              <p className="pt-4 border-t border-zinc-100 text-[10px] text-zinc-400 text-center uppercase tracking-widest">
+                Science Based • Independent Developer Dad
               </p>
             </div>
           </article>
-        </div>
-      </main>
-    </div>
-  );
-}
         </div>
       </main>
     </div>
