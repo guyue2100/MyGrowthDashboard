@@ -6,65 +6,72 @@ export const SaveReportButton = ({ targetId }: { targetId: string }) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSave = async () => {
-    // 1. 同时尝试 ID 和 QuerySelector，确保能抓取到元素
-    const element = document.getElementById(targetId) || document.querySelector(`#${targetId}`);
+    // 1. 获取目标元素
+    const element = document.getElementById(targetId);
     
     if (!element) {
-      alert("未发现可截图区域，请检查 ID 是否正确");
+      alert("未找到评估区域，请刷新页面重试");
       return;
     }
 
     setIsGenerating(true);
 
     try {
-      // 2. 核心优化：给浏览器 800ms 处理图表动画，防止截取到空白或动画中途的图表
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // 2. 预留时间等待图表动画完全静止（关键）
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const canvas = await html2canvas(element as HTMLElement, {
-        scale: 2,               // 2倍高清
-        useCORS: true,          // 允许加载跨域资源
-        allowTaint: true,       // 允许污染画布
-        backgroundColor: '#ffffff', // 强制白色背景，防止透明
-        logging: false,         // 关闭日志提高性能
-        // 3. 关键修正：手动处理 SVG，防止 Recharts 导致渲染崩溃
+      // 3. 配置 html2canvas
+      const canvas = await html2canvas(element, {
+        scale: 2,               // 保持高清，适合分享
+        useCORS: true,          // 允许跨域图片
+        allowTaint: false,
+        backgroundColor: '#ffffff', // 确保背景为白色而非透明
+        logging: false,         // 生产环境关闭日志
+        // 4. 关键修正：手动处理 SVG 元素
+        // html2canvas 克隆节点时，SVG 若无显式宽高会渲染失败
         onclone: (clonedDoc) => {
-          const svgElements = clonedDoc.getElementsByTagName('svg');
-          Array.from(svgElements).forEach(svg => {
+          const svgs = clonedDoc.querySelectorAll('svg');
+          svgs.forEach(svg => {
             const bbox = svg.getBoundingClientRect();
-            svg.setAttribute('width', bbox.width.toString());
-            svg.setAttribute('height', bbox.height.toString());
+            if (bbox.width > 0 && bbox.height > 0) {
+              svg.setAttribute('width', bbox.width.toString());
+              svg.setAttribute('height', bbox.height.toString());
+            }
           });
+          
+          // 移除克隆文档中可能存在的干扰元素（如悬浮按钮本身）
+          const buttons = clonedDoc.querySelectorAll('button');
+          buttons.forEach(btn => btn.style.display = 'none');
         }
       });
 
-      // 4. 下载逻辑增强
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      // 使用 ISO 日期避免非法字符导致的保存失败
-      link.download = `babygrow-report-${new Date().toISOString().split('T')[0]}.png`;
-      
-      // 兼容移动端浏览器的下载触发
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
+      // 5. 使用 Blob 方式导出，兼容性比 dataURL 更好
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          throw new Error('Canvas to Blob failed');
+        }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        // 使用 ISO 日期命名，避免非法字符导致的下载中断
+        const dateStr = new Date().toISOString().split('T')[0];
+        link.download = `宝宝生长评估报告-${dateStr}.png`;
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        // 清理内存
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+
     } catch (err) {
-      console.error('保存失败详情:', err);
-      alert("生成报告失败，请重试");
+      console.error('报告生成失败详情:', err);
+      alert("保存失败，请尝试手动截屏或稍后重试。");
     } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <button 
-      onClick={handleSave} 
-      disabled={isGenerating}
-      className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-[2rem] font-bold shadow-xl hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50"
-    >
-      {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : <Download className="w-5 h-5" />}
-      {isGenerating ? '正在生成精美报告...' : '下载生长评估报告'}
-    </button>
-  );
-};
+    <button
