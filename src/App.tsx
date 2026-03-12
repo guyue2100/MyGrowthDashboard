@@ -143,6 +143,63 @@ export default function App() {
               />
             </div>
           </section>
+          <article className="mt-12 p-8 md:p-10 bg-white/60 backdrop-blur-sm rounded-[3rem] border border-white shadow-sm space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
+              <h2 className="text-xl font-bold text-zinc-800">科学原理：如何预测孩子未来的“海拔”？</h2>
+            </div>
+            
+            <div className="text-zinc-600 leading-relaxed space-y-5 text-sm md:text-base">
+              <p>
+                身高的秘密大约 <span className="font-bold text-indigo-600">70% 隐藏在遗传基因中</span>，而剩下的 <span className="font-bold text-emerald-600">30% 则取决于后天的环境努力</span>。
+              </p>
+
+              <div className="bg-zinc-50/50 p-6 rounded-2xl border border-zinc-100">
+                <h3 className="font-bold text-zinc-700 mb-3 flex items-center gap-2">
+                  什么是 FPH 遗传预测公式？
+                </h3>
+                <p className="mb-4 text-sm">
+                  本工具采用了国际公认的 <strong>FPH (Final Parental Height)</strong> 公式，也被称为“靶身高”计算法。这是临床儿科医生用于初步评估生长潜力的主流模型：
+                </p>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <li className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                    <span className="block text-xs text-blue-400 font-bold mb-1 uppercase">男孩靶身高</span>
+                    <span className="font-mono text-blue-700 font-bold text-sm">(父高 + 母高 + 13) / 2 ± 6.5 cm</span>
+                  </li>
+                  <li className="bg-pink-50/50 p-4 rounded-xl border border-pink-100">
+                    <span className="block text-xs text-pink-400 font-bold mb-1 uppercase">女孩靶身高</span>
+                    <span className="font-mono text-pink-700 font-bold text-sm">(父高 + 母高 - 13) / 2 ± 6.5 cm</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="font-bold text-zinc-700">遗传区间：上限与下限的博弈</h3>
+                <p className="text-zinc-500 text-sm italic">
+                  公式末尾的 ± 6.5 cm 代表了生长的“潜力范围”：
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex gap-3 items-start">
+                    <span className="flex-shrink-0 w-5 h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs">↑</span>
+                    <p className="text-sm"><strong>上限：</strong>代表在营养充足、睡眠高质量、运动科学的理想环境下，孩子所能触达的遗传天花板。</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <span className="flex-shrink-0 w-5 h-5 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xs">↓</span>
+                    <p className="text-sm"><strong>下限：</strong>如果长期存在睡眠不足、挑食厌食或缺乏运动等不利因素，可能会导致生长潜力无法完全释放。</p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="pt-4 border-t border-zinc-100 text-xs text-zinc-400 text-center">
+                * 本工具仅供家庭日常记录参考，如发育明显偏离标准曲线，请及时咨询专业医师。
+              </p>
+            </div>
+          </article>
+        </div>
+      </main>
+    </div>
+  );
+}
         </div>
       </main>
     </div>
