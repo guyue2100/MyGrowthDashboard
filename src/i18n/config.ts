@@ -34,7 +34,8 @@ const resources = {
       saveSuccess: 'Saved successfully',
       unitHeight: 'cm',
       unitWeight: 'kg',
-      delete: 'Delete'
+      delete: 'Delete',
+      value: 'Value'
     }
   },
   zh: {
@@ -68,7 +69,8 @@ const resources = {
       saveSuccess: '保存成功',
       unitHeight: 'cm',
       unitWeight: 'kg',
-      delete: '删除'
+      delete: '删除',
+      value: '数值'
     }
   },
   ja: {
@@ -102,7 +104,8 @@ const resources = {
       saveSuccess: '保存されました',
       unitHeight: 'cm',
       unitWeight: 'kg',
-      delete: '削除'
+      delete: '削除',
+      value: '数値'
     }
   },
   ko: {
@@ -136,7 +139,8 @@ const resources = {
       saveSuccess: '성공적으로 저장되었습니다',
       unitHeight: 'cm',
       unitWeight: 'kg',
-      delete: '삭제'
+      delete: '삭제',
+      value: '수치'
     }
   },
   es: {
@@ -170,7 +174,8 @@ const resources = {
       saveSuccess: 'Guardado con éxito',
       unitHeight: 'cm',
       unitWeight: 'kg',
-      delete: 'Eliminar'
+      delete: 'Eliminar',
+      value: 'Valor'
     }
   },
   pt: {
@@ -204,7 +209,8 @@ const resources = {
       saveSuccess: 'Salvo com sucesso',
       unitHeight: 'cm',
       unitWeight: 'kg',
-      delete: 'Excluir'
+      delete: 'Excluir',
+      value: 'Valor'
     }
   },
   de: {
@@ -238,7 +244,8 @@ const resources = {
       saveSuccess: 'Erfolgreich gespeichert',
       unitHeight: 'cm',
       unitWeight: 'kg',
-      delete: 'Löschen'
+      delete: 'Löschen',
+      value: 'Wert'
     }
   }
 };
