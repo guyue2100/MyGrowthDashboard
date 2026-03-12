@@ -64,7 +64,7 @@ export const SaveReportButton = ({ targetId }: { targetId: string }) => {
       className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-[2rem] font-bold shadow-xl hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50"
     >
       {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : <Download className="w-5 h-5" />}
-      {isGenerating ? '正在生成精美报告...' : '下载生长评估报告 (发小红书)'}
+      {isGenerating ? '正在生成精美报告...' : '下载生长评估报告'}
     </button>
   );
 };
