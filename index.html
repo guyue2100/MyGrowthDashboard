@@ -1,39 +1,90 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <title>2026宝宝身高预测 - 在线WHO生长曲线档案 & AI发育评估工具</title>
-    <meta name="description" content="BabyGrow 是一款专业的儿童生长发育追踪工具。基于 WHO 最新标准记录宝宝身高体重，实时绘制生长曲线百分位，并利用 FPH 遗传算法预测成年身高。数据本地存储，保障隐私。" />
-    <meta name="keywords" content="宝宝身高预测,婴儿生长曲线,WHO身高标准表,遗传身高计算器,儿童发育评估" />
-    
-    <link rel="canonical" href="https://babygrow.online" />
+    <!-- Primary Meta Tags -->
+    <title>Baby Growth Dashboard - AI Height Predictor & Growth Curve Assessment</title>
+    <meta name="title" content="Baby Growth Dashboard - AI Height Predictor & Growth Curve Assessment" />
+    <meta name="description" content="Track your baby's growth with WHO standards. Use our AI Height Predictor to estimate adult height based on genetics and current growth trends. Free growth curve analysis." />
+    <meta name="keywords" content="baby growth chart, height predictor, child growth curve, WHO growth standards, baby development tracker, adult height estimation" />
+    <meta name="author" content="Baby Growth Dashboard" />
 
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.babygrow.online/" />
+    <meta property="og:title" content="Baby Growth Dashboard - AI Height Predictor" />
+    <meta property="og:description" content="Track your baby's growth with WHO standards. AI Height Predictor included." />
+    <meta property="og:image" content="https://www.babygrow.online/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://www.babygrow.online/" />
+    <meta property="twitter:title" content="Baby Growth Dashboard - AI Height Predictor" />
+    <meta property="twitter:description" content="Track your baby's growth with WHO standards. AI Height Predictor included." />
+    <meta property="twitter:image" content="https://www.babygrow.online/og-image.png" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.babygrow.online/" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "宝宝成长档案 (BabyGrow)",
-      "url": "https://babygrow.online",
+      "@type": "WebApplication",
+      "name": "Baby Growth Dashboard",
+      "url": "https://www.babygrow.online/",
+      "description": "A comprehensive tool for tracking child growth using WHO standards and predicting adult height using AI.",
       "applicationCategory": "HealthApplication",
-      "operatingSystem": "Web",
-      "description": "基于 WHO 标准与 FPH 遗传算法的宝宝生长曲线记录与成年身高预测工具。",
-      "author": {
-        "@type": "Person",
-        "name": "Independent Developer Dad"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "reviewCount": "156"
-      },
+      "operatingSystem": "All",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "CNY"
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Baby Growth Dashboard"
       }
+    }
+    </script>
+
+    <!-- FAQ Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How accurate is the AI height predictor?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Our predictor uses the FPH (Final Parental Height) algorithm combined with current growth percentile data. While genetics account for 70% of height, environmental factors like nutrition and sleep play a significant role."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are WHO child growth standards?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The WHO Child Growth Standards describe the growth of children living in environments that support healthy growth. They are used worldwide to monitor child development."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "When should I be concerned about my baby's growth curve?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Consult a pediatrician if the growth curve crosses two or more major percentile lines, or if growth consistently stays below the 3rd or above the 97th percentile."
+          }
+        }
+      ]
     }
     </script>
   </head>
@@ -42,3 +93,4 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+
