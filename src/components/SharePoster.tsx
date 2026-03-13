@@ -3,11 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
 import { Download, Share2, Sparkles } from 'lucide-react';
+// --- 1. 导入埋点工具函数 ---
+import { trackEvent } from '../lib/gtag';
 
 interface SharePosterProps {
   gender: 'boy' | 'girl';
   predictedHeight: number;
 }
+
+// ... BoyCartoon 和 GirlCartoon 组件代码保持不变 ...
 
 const BoyCartoon = () => (
   <svg viewBox="0 0 200 200" className="w-48 h-48 drop-shadow-xl">
@@ -43,7 +47,6 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
   const [isGenerating, setIsGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // 这里的 URL 固定为首页，确保引流进来的用户看到的是清空状态
   const homeUrl = "https://www.babygrow.online/";
 
   const handleDownload = async () => {
@@ -52,15 +55,32 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
     try {
       const dataUrl = await toPng(posterRef.current, { 
         cacheBust: true, 
-        pixelRatio: 2, // 提高清晰度，适合社交平台分享
+        pixelRatio: 2, 
         quality: 1 
       });
+
+      // --- 2. 【核心埋点：记录转化成功】 ---
+      trackEvent('save_poster_success', {
+        category: 'Conversion',
+        label: `${gender}_poster`,
+        value: Math.round(predictedHeight) 
+      });
+      // ------------------------------------
+
       const link = document.createElement('a');
       link.download = `babygrow-prediction-${new Date().getTime()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
       console.error('Snapshot failed', err);
+      
+      // --- 3. 【异常埋点：记录失败原因】 ---
+      trackEvent('save_poster_error', { 
+        category: 'Error', 
+        label: err instanceof Error ? err.message : 'unknown' 
+      });
+      // ------------------------------------
+      
     } finally {
       setIsGenerating(false);
     }
@@ -70,7 +90,11 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
     <div className="space-y-6">
       <div className="flex items-center justify-center">
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setShowModal(true);
+            // --- 4. 【可选埋点：记录弹窗触发】 ---
+            trackEvent('click_share_button', { category: 'Engagement', label: gender });
+          }}
           className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-black transition-all active:scale-95 shadow-xl hover:shadow-2xl ${
             gender === 'boy' 
               ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-100' 
@@ -82,7 +106,7 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
         </button>
       </div>
 
-      {/* Modal Overlay */}
+      {/* ... 其余 Modal 和 Poster 渲染代码完全保持不变 ... */}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
@@ -112,7 +136,6 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
 
               <div className="flex flex-col items-center space-y-2 bg-zinc-50/80 p-3 rounded-2xl border border-zinc-100/50">
                 <div className="bg-white p-1.5 rounded-lg shadow-sm border border-zinc-50">
-                  {/* 二维码链接设置为首页 */}
                   <QRCodeSVG value={homeUrl} size={70} level="H" />
                 </div>
                 <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{t('scanToPredict')}</p>
@@ -141,7 +164,6 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
         </div>
       )}
 
-      {/* Hidden Poster for Generation */}
       <div className="overflow-hidden h-0 w-0 absolute -left-[9999px]">
         <div 
           ref={posterRef}
@@ -151,14 +173,12 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
               : 'bg-gradient-to-b from-rose-400 to-violet-600'
           }`}
         >
-          {/* Decorations */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute top-10 left-10 w-20 h-20 bg-white/20 rounded-full blur-xl animate-pulse"></div>
             <div className="absolute bottom-20 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full border border-white/10"></div>
           </div>
 
-          {/* Header */}
           <div className="relative z-10 text-center space-y-4 mb-10">
             <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-1 rounded-full border border-white/30">
               <Sparkles className="w-4 h-4 text-yellow-300" />
@@ -169,7 +189,6 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
             </h1>
           </div>
 
-          {/* Result Card */}
           <div className="relative z-10 w-full bg-white/95 backdrop-blur-lg rounded-[3rem] p-10 shadow-2xl space-y-6 text-center mb-10">
             <p className="text-[12px] font-black text-zinc-400 uppercase tracking-[0.2em]">
               {t('predictedHeight')}
@@ -186,14 +205,12 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
             </p>
           </div>
 
-          {/* Footer with QR */}
           <div className="relative z-10 w-full flex items-center justify-between bg-black/10 backdrop-blur-sm rounded-[2rem] p-6 border border-white/10">
             <div className="text-left">
               <p className="text-white font-black text-lg tracking-tight">Baby Growth Dashboard</p>
               <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">{t('scanToPredict')}</p>
             </div>
             <div className="bg-white p-2 rounded-2xl shadow-lg">
-              {/* 海报里的二维码也是纯净首页链接 */}
               <QRCodeSVG value={homeUrl} size={60} level="H" />
             </div>
           </div>
