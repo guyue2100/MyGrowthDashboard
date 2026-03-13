@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { differenceInDays, parseISO, format } from 'date-fns';
-import { TrendingUp, Award, LineChart } from 'lucide-react';
+import { differenceInDays, parseISO } from 'date-fns';
+import { Award, LineChart } from 'lucide-react';
 
-// 组件导入
 import { GrowthChart } from './components/GrowthChart';
 import { GrowthAssessmentForm } from './components/GrowthAssessmentForm';
 import { HeightPredictor } from './components/HeightPredictor';
@@ -11,7 +10,7 @@ import { LanguageSwitcher } from './components/LanguageSwitcher';
 
 export default function App() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language === 'en';
+  const isEn = i18n.language.startsWith('en');
   
   const [assessmentData, setAssessmentData] = useState<any>(() => {
     const saved = localStorage.getItem('growth_assessment');
@@ -47,11 +46,8 @@ export default function App() {
 
   const latestRecord = records[records.length - 1];
 
-  // 格式化显示的日期，将横杠换成点，去掉单位
-  const displayBirthday = assessmentData.birthday.replace(/-/g, '.');
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-6">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-6 font-sans">
       <div className="fixed top-4 right-4 z-50">
         <LanguageSwitcher />
       </div>
@@ -65,7 +61,7 @@ export default function App() {
                 BabyGrow AI
               </h1>
               <p className="text-slate-500 text-sm mt-1 font-medium">
-                {isEn ? "AI growth tool by a developer dad in Hangzhou" : }
+                {isEn ? "AI growth tool by a developer dad in Hangzhou" : "杭州程序猿爸爸为爱发电的 AI 育儿工具"}
               </p>
             </div>
             <GrowthAssessmentForm initialData={assessmentData} onSubmit={handleAssessmentSubmit} />
@@ -75,15 +71,13 @@ export default function App() {
         <div className="lg:col-span-7 space-y-6">
           {latestRecord && (
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center md:text-left">
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                 <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{t('latestHeight')}</p>
                 <p className="text-3xl font-black text-slate-900">{latestRecord.height}<span className="text-sm ml-1 text-slate-300">cm</span></p>
-                <p className="text-[10px] text-slate-400 mt-2 font-mono">{displayBirthday}</p>
               </div>
-              <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center md:text-left">
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                 <p className="text-[10px] font-bold text-pink-500 uppercase tracking-widest mb-1">{t('latestWeight')}</p>
                 <p className="text-3xl font-black text-slate-900">{latestRecord.weight}<span className="text-sm ml-1 text-slate-300">kg</span></p>
-                <p className="text-[10px] text-slate-400 mt-2 font-mono">{format(new Date(), 'yyyy.MM.dd')}</p>
               </div>
             </div>
           )}
@@ -107,37 +101,27 @@ export default function App() {
             </div>
           </section>
 
-          {/* 深度解析文章：语言同步渲染 */}
           <article className="p-8 md:p-12 bg-white rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
             <div className="flex items-center gap-3">
               <div className="w-2 h-8 bg-indigo-600 rounded-full"></div>
               <h2 className="text-2xl font-black text-slate-900">
-                {isEn ? "Growth Truth: Decoding the Curves" : "深度解析：如何看懂宝宝的发育真相？"}
+                {isEn ? "Decoding the Growth Truth" : "深度解析：如何看懂宝宝的发育真相？"}
               </h2>
             </div>
             <div className="space-y-6 text-slate-600 leading-relaxed text-sm md:text-base">
               {isEn ? (
                 <>
-                  <p>
-                    Using the latest <strong>WHO Child Growth Standards</strong>, we evaluate development via <strong>Percentile Curves</strong>. Growth is considered healthy as long as it parallels the reference lines and stays between the 3rd and 97th percentiles.
-                  </p>
-                  <p>
-                    Height prediction is based on the <strong>FPH Algorithm</strong>. While genetics account for ~70% of height, quality sleep, regular exercise, and precise nutrition can help a child reach their full potential.
-                  </p>
+                  <p>Based on <strong>WHO Standards</strong>, growth is evaluated via <strong>Percentile Curves</strong>. Healthy growth parallels reference lines between 3rd and 97th percentiles.</p>
+                  <p>Height prediction uses the <strong>FPH Algorithm</strong>. Genetics account for 70%, but quality sleep and nutrition help children reach their full potential.</p>
                 </>
               ) : (
                 <>
-                  <p>
-                    本工具采用最新的 <strong>WHO（世界卫生组织）儿童生长发育标准</strong>，通过 <strong>Percentile（百分位）曲线</strong> 进行动态评估。只要宝宝的生长轨迹平行于参考线且处于 3rd 至 97th 百分位之间，通常都属于健康发育范畴。
-                  </p>
-                  <p>
-                    遗传身高预测基于 <strong>FPH 算法</strong>。虽然遗传基因决定了约 70% 的最终身高，但后天的优质睡眠、适度负重运动与精准营养干预，依然能帮助宝宝突破遗传潜能。
-                  </p>
+                  <p>本工具采用最新的 <strong>WHO（世界卫生组织）标准</strong>，通过 <strong>Percentile（百分位）曲线</strong> 进行动态评估。只要生长轨迹平行于参考线且处于 3rd 至 97th 百分位之间，通常属于健康。</p>
+                  <p>遗传预测基于 <strong>FPH 算法</strong>。虽然遗传决定 70% 的最终身高，但后天的优质睡眠与精准营养干预，依然能帮助宝宝突破遗传潜能。</p>
                 </>
               )}
-              <footer className="pt-8 border-t border-slate-100 flex flex-col items-center gap-2 font-mono text-[10px] tracking-widest text-slate-400 uppercase">
-                <span>Science Based • Independent Developer Dad</span>
-                <span className="text-slate-300 tracking-normal italic">BabyGrow.online</span>
+              <footer className="pt-8 border-t border-slate-100 text-center font-mono text-[10px] text-slate-400 tracking-widest uppercase">
+                Science Based • Independent Developer Dad • BabyGrow.online
               </footer>
             </div>
           </article>
