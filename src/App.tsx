@@ -61,7 +61,7 @@ export default function App() {
                 BabyGrow AI
               </h1>
               <p className="text-slate-500 text-sm mt-1 font-medium">
-                {isEn ? "AI growth tool by a developer dad in Hangzhou" : "杭州程序猿爸爸为爱发电的 AI 育儿工具"}
+                {isEn ? "AI growth tool by a developer dad in Hangzhou" : }
               </p>
             </div>
             <GrowthAssessmentForm initialData={assessmentData} onSubmit={handleAssessmentSubmit} />
