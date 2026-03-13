@@ -1,8 +1,22 @@
 <!doctype html>
-<html lang="zh-CN"> <head>
+<html lang="zh-CN">
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XXXXXXXXXX', {
+        page_path: window.location.pathname,
+        // 针对小红书内置浏览器的兼容性配置
+        cookie_flags: 'max-age=7200;SameSite=None;Secure'
+      });
+    </script>
+
     <title>BabyGrow AI - 2026最新宝宝身高预测与WHO生长曲线评估工具</title>
     <meta name="title" content="BabyGrow AI - 2026最新宝宝身高预测与WHO生长曲线评估工具" />
     <meta name="description" content="专为家长打造的免费育儿工具。基于WHO生长发育标准与FPH遗传算法，提供精准的成年身高预测、身高体重百分位曲线追踪。本地存储，守护隐私。" />
