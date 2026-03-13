@@ -11,10 +11,9 @@ import { GrowthAssessmentForm } from './components/GrowthAssessmentForm';
 import { HeightPredictor } from './components/HeightPredictor';
 import { SharePoster } from './components/SharePoster';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
-import { GrowthRecord } from './types';
 import { predictHeight } from './services/growthCalculations';
 
-// ... BoyIcon 和 GirlIcon 定义保持不变 ...
+// --- 图标定义保持不变 ---
 const BoyIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" fill="#F0F9FF" />
@@ -41,32 +40,16 @@ const GirlIcon = () => (
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  // 1. 初始化逻辑添加 try-catch 保护，防止 JSON 解析失败导致白屏
-  const [assessmentData, setAssessmentData] = useState<any>(() => {
-    try {
-      // 显式检查 URL 是否有参数，如果有，强制进入清空逻辑（针对你的特殊需求）
-      if (window.location.search.length > 0) {
-        // 清理 URL，避免干扰
-        window.history.replaceState({}, '', window.location.pathname);
-      } else {
-        const saved = localStorage.getItem('growth_assessment');
-        if (saved) return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error("Storage load error", e);
-    }
-
-    // 默认空状态
-    return {
-      gender: 'boy',
-      birthday: new Date().toISOString().split('T')[0],
-      fatherHeight: '',
-      motherHeight: '',
-      measurements: [{ date: new Date().toISOString().split('T')[0], height: '', weight: '' }]
-    };
+  // --- 核心改动：不再读取 localStorage，初始数据永远为空 ---
+  const [assessmentData, setAssessmentData] = useState<any>({
+    gender: 'boy',
+    birthday: new Date().toISOString().split('T')[0],
+    fatherHeight: '',
+    motherHeight: '',
+    measurements: [{ date: new Date().toISOString().split('T')[0], height: '', weight: '' }]
   });
 
-  // 2. SEO 更新逻辑
+  // SEO 更新逻辑
   useEffect(() => {
     document.title = `${t('title')} - ${t('aiPredictor')}`;
     document.documentElement.lang = i18n.language;
@@ -76,7 +59,6 @@ export default function App() {
       metaDescription.setAttribute('content', `${t('subtitle')}. ${t('seoContent1')}`);
     }
 
-    // 修复 Canonical URL 逻辑，避免在渲染期间频繁干扰
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement('link');
@@ -86,17 +68,16 @@ export default function App() {
     canonical.setAttribute('href', window.location.origin + window.location.pathname);
   }, [t, i18n.language]);
 
+  // --- 核心改动：只更新内存状态，不再写入 localStorage ---
   const handleAssessmentSubmit = (data: any) => {
     setAssessmentData(data);
-    localStorage.setItem('growth_assessment', JSON.stringify(data));
   };
 
   const records = useMemo(() => {
-    // 添加非空防御，防止 measurements 为空时 crash
-    if (!assessmentData || !assessmentData.measurements || !Array.isArray(assessmentData.measurements)) return [];
+    if (!assessmentData || !assessmentData.measurements) return [];
     
     return assessmentData.measurements
-      .filter((m: any) => m && m.date && m.height) // 过滤掉无效数据
+      .filter((m: any) => m.height && m.weight) // 只记录完整填写的行
       .map((m: any, index: number) => {
         const ageInMonths = Number((differenceInDays(parseISO(m.date), parseISO(assessmentData.birthday)) / 30.4375).toFixed(2));
         
@@ -105,8 +86,8 @@ export default function App() {
           childId: 'child',
           date: m.date,
           ageInMonths,
-          height: parseFloat(m.height) || 0,
-          weight: parseFloat(m.weight) || 0,
+          height: parseFloat(m.height),
+          weight: parseFloat(m.weight),
           headCircumference: 0,
         };
       }).sort((a: any, b: any) => a.ageInMonths - b.ageInMonths);
@@ -115,7 +96,9 @@ export default function App() {
   const latestRecord = records[records.length - 1];
 
   const prediction = useMemo(() => {
-    if (!latestRecord) return null;
+    // 如果没有输入身高或父母身高，不生成预测
+    if (!latestRecord?.height || !assessmentData.fatherHeight || !assessmentData.motherHeight) return null;
+    
     return predictHeight(
       assessmentData.gender,
       parseFloat(assessmentData.fatherHeight || '0'),
@@ -188,16 +171,18 @@ export default function App() {
       </main>
 
       <footer className="max-w-5xl mx-auto px-4 md:px-6 mt-12 md:mt-16 mb-10">
-        {/* ... Footer 内容保持不变 ... */}
         <div className="bg-white/50 backdrop-blur-sm p-6 md:p-12 rounded-[2.5rem] md:rounded-[3rem] border border-black/5 space-y-6">
           <h2 className="text-xl md:text-2xl font-black text-zinc-900 tracking-tight leading-tight">
             {t('seoTitle')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-zinc-600 leading-relaxed">
-            <p className="text-sm md:text-base opacity-80">{t('seoContent1')}</p>
-            <p className="text-sm md:text-base opacity-80">{t('seoContent2')}</p>
+            <div className="space-y-4">
+              <p className="text-sm md:text-base opacity-80">{t('seoContent1')}</p>
+            </div>
+            <div className="space-y-4">
+              <p className="text-sm md:text-base opacity-80">{t('seoContent2')}</p>
+            </div>
           </div>
-          {/* ... 其他部分 ... */}
           <div className="pt-6 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center sm:text-left">
               © 2026 Baby Growth Dashboard • {t('reference')}
