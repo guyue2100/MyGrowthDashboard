@@ -136,3 +136,40 @@ export function getAssessment(percentile: number): string {
   if (percentile > 0.85) return '偏高';
   return '标准';
 }
+
+export function predictHeight(
+  gender: Gender,
+  fatherHeight: number,
+  motherHeight: number,
+  latestHeight?: number,
+  latestAgeInMonths?: number
+) {
+  if (!fatherHeight || !motherHeight) return null;
+
+  // 1. Mid-parental Height (MPH)
+  const mphBase = (fatherHeight + motherHeight + (gender === 'boy' ? 13 : -13)) / 2;
+
+  // 2. Growth Curve Projection
+  let curvePrediction = null;
+  if (latestHeight && latestAgeInMonths !== undefined) {
+    const lms = getInterpolatedLMS(latestAgeInMonths, WHO_DATA[gender].height);
+    const zScore = calculateZScore(latestHeight, lms);
+    
+    // Project to 20 years (240 months)
+    const adultLMS = WHO_DATA[gender].height.find(d => d.month === 240) || WHO_DATA[gender].height[WHO_DATA[gender].height.length - 1];
+    const projectedHeight = adultLMS.M * Math.pow(1 + adultLMS.L * adultLMS.S * zScore, 1 / adultLMS.L);
+    curvePrediction = projectedHeight;
+  }
+
+  // 3. Combined "AI" Fuzzy Prediction
+  let finalTarget = mphBase;
+  if (curvePrediction) {
+    // Weighting: 40% Genetics, 60% Current Growth
+    finalTarget = (mphBase * 0.4) + (curvePrediction * 0.6);
+  }
+
+  return {
+    final: finalTarget,
+    range: [finalTarget - 4, finalTarget + 4]
+  };
+}
