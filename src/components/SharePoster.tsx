@@ -43,17 +43,24 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
   const [isGenerating, setIsGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+  // 这里的 URL 固定为首页，确保引流进来的用户看到的是清空状态
+  const homeUrl = "https://www.babygrow.online/";
+
   const handleDownload = async () => {
     if (posterRef.current === null) return;
     setIsGenerating(true);
     try {
-      const dataUrl = await toPng(posterRef.current, { cacheBust: true, quality: 1 });
+      const dataUrl = await toPng(posterRef.current, { 
+        cacheBust: true, 
+        pixelRatio: 2, // 提高清晰度，适合社交平台分享
+        quality: 1 
+      });
       const link = document.createElement('a');
-      link.download = `baby-growth-prediction-${new Date().getTime()}.png`;
+      link.download = `babygrow-prediction-${new Date().getTime()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error('oops, something went wrong!', err);
+      console.error('Snapshot failed', err);
     } finally {
       setIsGenerating(false);
     }
@@ -84,14 +91,14 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
           ></div>
           
           <div className="relative z-10 w-full max-w-[260px] bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-zinc-100">
-            {/* Ultra Compact Header */}
+            {/* Header */}
             <div className={`py-3 px-4 text-center ${gender === 'boy' ? 'bg-sky-50/50' : 'bg-rose-50/50'}`}>
               <h3 className={`text-sm font-black ${gender === 'boy' ? 'text-sky-600' : 'text-rose-600'} tracking-tight`}>
                 {gender === 'boy' ? t('boyPosterTitle') : t('girlPosterTitle')}
               </h3>
             </div>
 
-            {/* Ultra Compact Content */}
+            {/* Content */}
             <div className="p-4 space-y-4 text-center">
               <div className="space-y-0.5">
                 <p className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.1em]">{t('predictedHeight')}</p>
@@ -105,7 +112,8 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
 
               <div className="flex flex-col items-center space-y-2 bg-zinc-50/80 p-3 rounded-2xl border border-zinc-100/50">
                 <div className="bg-white p-1.5 rounded-lg shadow-sm border border-zinc-50">
-                  <QRCodeSVG value="https://www.babygrow.online/" size={70} level="H" />
+                  {/* 二维码链接设置为首页 */}
+                  <QRCodeSVG value={homeUrl} size={70} level="H" />
                 </div>
                 <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">{t('scanToPredict')}</p>
               </div>
@@ -143,7 +151,7 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
               : 'bg-gradient-to-b from-rose-400 to-violet-600'
           }`}
         >
-          {/* Background Decorations */}
+          {/* Decorations */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute top-10 left-10 w-20 h-20 bg-white/20 rounded-full blur-xl animate-pulse"></div>
             <div className="absolute bottom-20 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -185,7 +193,8 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
               <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">{t('scanToPredict')}</p>
             </div>
             <div className="bg-white p-2 rounded-2xl shadow-lg">
-              <QRCodeSVG value="https://www.babygrow.online/" size={60} level="H" />
+              {/* 海报里的二维码也是纯净首页链接 */}
+              <QRCodeSVG value={homeUrl} size={60} level="H" />
             </div>
           </div>
         </div>
