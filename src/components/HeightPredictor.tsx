@@ -6,7 +6,8 @@ import {
   getInterpolatedLMS, 
   calculateZScore, 
   zScoreToPercentile,
-  Gender
+  Gender,
+  predictHeight
 } from '../services/growthCalculations';
 
 interface HeightPredictorProps {
@@ -27,43 +28,13 @@ export const HeightPredictor: React.FC<HeightPredictorProps> = ({
   const { t } = useTranslation();
 
   const prediction = useMemo(() => {
-    const f = parseFloat(fatherHeight || '0');
-    const m = parseFloat(motherHeight || '0');
-
-    if (!f || !m) return null;
-
-    // 1. Mid-parental Height (MPH)
-    const mphBase = (f + m + (gender === 'boy' ? 13 : -13)) / 2;
-    const mphRange = [mphBase - 5, mphBase + 5];
-
-    // 2. Growth Curve Projection
-    let curvePrediction = null;
-    if (latestHeight && latestAgeInMonths !== undefined) {
-      const lms = getInterpolatedLMS(latestAgeInMonths, WHO_DATA[gender].height);
-      const zScore = calculateZScore(latestHeight, lms);
-      
-      // Project to 20 years (240 months)
-      const adultLMS = WHO_DATA[gender].height.find(d => d.month === 240) || WHO_DATA[gender].height[WHO_DATA[gender].height.length - 1];
-      // Adult height = M * (1 + L*S*Z)^(1/L) if L != 0, else M * exp(S*Z)
-      // Our calculateZScore is ( (val/M)^L - 1 ) / (L*S)
-      // So val = M * (1 + L*S*Z)^(1/L)
-      const projectedHeight = adultLMS.M * Math.pow(1 + adultLMS.L * adultLMS.S * zScore, 1 / adultLMS.L);
-      curvePrediction = projectedHeight;
-    }
-
-    // 3. Combined "AI" Fuzzy Prediction
-    let finalTarget = mphBase;
-    if (curvePrediction) {
-      // Weighting: 40% Genetics, 60% Current Growth (as current growth reflects both genetics and environment)
-      finalTarget = (mphBase * 0.4) + (curvePrediction * 0.6);
-    }
-
-    return {
-      mph: mphBase,
-      curve: curvePrediction,
-      final: finalTarget,
-      range: [finalTarget - 4, finalTarget + 4]
-    };
+    return predictHeight(
+      gender,
+      parseFloat(fatherHeight || '0'),
+      parseFloat(motherHeight || '0'),
+      latestHeight,
+      latestAgeInMonths
+    );
   }, [gender, fatherHeight, motherHeight, latestHeight, latestAgeInMonths]);
 
   if (!prediction) return null;

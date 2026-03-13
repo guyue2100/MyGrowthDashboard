@@ -73,7 +73,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({ gender, type, records,
           <h3 className="text-lg md:text-2xl font-black text-zinc-900 tracking-tight">{title}</h3>
           <p className="text-[10px] md:text-xs font-bold text-zinc-300 mt-1">{t('reference')}</p>
         </div>
-        <div className={`px-3 py-1 md:px-4 md:py-2 rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest ${gender === 'boy' ? 'bg-blue-50 text-blue-400 border border-blue-100' : 'bg-pink-50 text-pink-400 border border-pink-100'}`}>
+        <div className={`px-3 py-1 md:px-4 md:py-2 rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest ${gender === 'boy' ? 'bg-sky-50 text-sky-500 border border-sky-100' : 'bg-rose-50 text-rose-400 border border-rose-100'}`}>
           {gender === 'boy' ? t('prince') : t('princess')}
         </div>
       </div>
@@ -130,11 +130,11 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({ gender, type, records,
               data={userData}
               type="monotone"
               dataKey="userValue"
-              stroke={gender === 'boy' ? '#3b82f6' : '#ec4899'}
+              stroke={gender === 'boy' ? '#0ea5e9' : '#fb7185'}
               strokeWidth={3}
               dot={{ 
                 r: 4, 
-                fill: gender === 'boy' ? '#3b82f6' : '#ec4899', 
+                fill: gender === 'boy' ? '#0ea5e9' : '#fb7185', 
                 strokeWidth: 2, 
                 stroke: '#fff' 
               }}
