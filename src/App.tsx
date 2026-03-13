@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { differenceInDays, parseISO } from 'date-fns';
-import { TrendingUp, Award, Info, LineChart } from 'lucide-react';
+import { TrendingUp, Award, LineChart } from 'lucide-react';
 
 // 组件导入
 import { GrowthChart } from './components/GrowthChart';
@@ -12,7 +12,7 @@ import { LanguageSwitcher } from './components/LanguageSwitcher';
 export default function App() {
   const { t } = useTranslation();
   
-  // 状态初始化
+  // 状态初始化：优先从本地存储获取
   const [assessmentData, setAssessmentData] = useState<any>(() => {
     const saved = localStorage.getItem('growth_assessment');
     return saved ? JSON.parse(saved) : {
@@ -62,7 +62,7 @@ export default function App() {
                 <Award className="w-8 h-8 text-indigo-600" />
                 BabyGrow AI
               </h1>
-              <p className="text-slate-500 text-sm mt-1 font-medium"></p>
+              <p className="text-slate-500 text-sm mt-1 font-medium">杭州程序猿爸爸为爱发电的 AI 育儿工具</p>
             </div>
             <GrowthAssessmentForm initialData={assessmentData} onSubmit={handleAssessmentSubmit} />
           </div>
@@ -84,6 +84,7 @@ export default function App() {
             </div>
           )}
 
+          {/* 核心预测组件 */}
           <HeightPredictor 
             gender={assessmentData.gender}
             fatherHeight={assessmentData.fatherHeight}
@@ -92,13 +93,7 @@ export default function App() {
             latestAgeInMonths={latestRecord?.ageInMonths}
           />
 
-          <div className="bg-indigo-50 border border-indigo-100 p-5 rounded-3xl flex items-start gap-3">
-            <Info className="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-indigo-800 leading-relaxed font-medium">
-              评估已生成。由于浏览器限制，如需保存精美报告，请<strong>直接手动截屏</strong>。每一条曲线都是宝宝成长的脚印。
-            </p>
-          </div>
-
+          {/* 趋势图表区 */}
           <section className="bg-white p-6 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
             <div className="flex items-center gap-2 mb-8 text-slate-800">
               <LineChart className="w-5 h-5 text-indigo-500" />
@@ -110,22 +105,27 @@ export default function App() {
             </div>
           </section>
 
-          {/* SEO 科普区 */}
+          {/* SEO 深度科普区：不仅为了专业性，更有利于 Google 权重积累 */}
           <article className="p-8 md:p-12 bg-white rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
             <div className="flex items-center gap-3">
               <div className="w-2 h-8 bg-indigo-600 rounded-full"></div>
-              <h2 className="text-2xl font-black text-slate-900">深度解析：如何看懂宝宝的发育真相？</h2>
+              <h2 className="text-2xl font-black text-slate-900 text-balance">深度解析：如何通过生长曲线看懂宝宝的发育真相？</h2>
             </div>
             <div className="space-y-6 text-slate-600 leading-relaxed text-sm md:text-base">
-              <p>采用最新的 <strong>WHO 儿童生长发育标准</strong>，通过 <strong>Percentile（百分位）曲线</strong> 动态评估。只要曲线平行于参考线且在 3rd-97th 之间，即为健康。</p>
-              <p>遗传身高预测基于 <strong>FPH 算法</strong>。虽然遗传决定了约 70% 的身高，但后天的优质睡眠、负重运动与精准营养仍能帮助宝宝触达发育天花板。</p>
-              <footer className="pt-6 border-t border-slate-100 text-center text-[10px] text-slate-300 tracking-widest uppercase">
-                Science Based • Independent Developer Dad • BabyGrow.online
+              <p>
+                本工具采用最新的 <strong>WHO（世界卫生组织）儿童生长发育标准</strong>，通过 <strong>Percentile（百分位）曲线</strong> 进行动态评估。只要宝宝的生长轨迹平行于参考线且处于 3rd 至 97th 百分位之间，通常都属于健康发育范畴。
+              </p>
+              <p>
+                遗传身高预测基于 <strong>FPH 算法</strong>。虽然遗传基因决定了约 70% 的最终身高，但后天的优质睡眠、适度负重运动与精准营养干预，依然能帮助宝宝突破遗传潜能，触达发育“天花板”。
+              </p>
+              <footer className="pt-8 border-t border-slate-100 flex flex-col items-center gap-2">
+                <p className="text-[10px] text-slate-400 font-medium tracking-widest uppercase">
+                  Science Based • Independent Developer Dad • BabyGrow.online
+                </p>
+                <p className="text-[10px] text-slate-300">
+                  注：评估结果基于统计学模型，不作为医学诊断依据。
+                </p>
               </footer>
             </div>
           </article>
         </div>
-      </main>
-    </div>
-  );
-}
