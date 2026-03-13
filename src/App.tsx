@@ -1,59 +1,47 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useTranslation, initReactI18next } from 'react-i18next';
-import i18n from 'i18next';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { differenceInDays, parseISO } from 'date-fns';
-import { Award, LineChart } from 'lucide-react';
-
-// 组件导入 (请确保文件名拼写完全一致)
+import { 
+  Baby, 
+  TrendingUp,
+  Edit2
+} from 'lucide-react';
 import { GrowthChart } from './components/GrowthChart';
-import { GrowthAssessmentForm, AssessmentData } from './components/GrowthAssessmentForm';
+import { GrowthAssessmentForm } from './components/GrowthAssessmentForm';
 import { HeightPredictor } from './components/HeightPredictor';
+import { SharePoster } from './components/SharePoster';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { GrowthRecord } from './types';
+import { predictHeight } from './services/growthCalculations';
 
-// --- 1. i18n 配置直接内置，防止外部加载失败导致 Build Failed ---
-const resources = {
-  zh: {
-    translation: {
-      latestHeight: "当前身高",
-      latestWeight: "当前体重",
-      trends: "生长发育曲线",
-      heightChartTitle: "身高发育参考曲线 (WHO)",
-      weightChartTitle: "体重发育参考曲线 (WHO)",
-      articleTitle: "深度解析：如何看懂宝宝的发育真相？",
-      articleP1: "本工具采用最新的 WHO（世界卫生组织）标准，通过 Percentile（百分位）曲线进行动态评估。只要生长轨迹平行于参考线且处于 3rd 至 97th 百分位之间，通常属于健康发育范畴。",
-      articleP2: "遗传身高预测基于 FPH 算法。虽然遗传基因决定了约 70% 的最终身高，但后天的优质睡眠、适度负重运动与精准营养干预，依然能帮助宝宝突破遗传潜能。",
-      footerNote: "基于科学数据 • 杭州程序员爸爸为爱发电 • BabyGrow.online",
-      medicalDisclaimer: "注：评估结果基于统计学模型，不作为医学诊断依据。"
-    }
-  },
-  en: {
-    translation: {
-      latestHeight: "Latest Height",
-      latestWeight: "Latest Weight",
-      trends: "Growth Trends",
-      heightChartTitle: "Height-for-age Percentiles (WHO)",
-      weightChartTitle: "Weight-for-age Percentiles (WHO)",
-      articleTitle: "Decoding the Growth Truth",
-      articleP1: "Based on WHO Child Growth Standards, we evaluate development via Percentile Curves. Growth is generally healthy if the curve parallels reference lines and stays between 3rd and 97th percentiles.",
-      articleP2: "Height prediction is based on the FPH algorithm. While genetics account for ~70%, quality sleep and nutrition can help children reach their full potential.",
-      footerNote: "Science Based • Made by a Developer Dad • BabyGrow.online",
-      medicalDisclaimer: "Note: Results are for reference only and not medical advice."
-    }
-  }
-};
+const BoyIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="10" fill="#F0F9FF" />
+    {/* Crown */}
+    <path d="M9 7L10.5 5L12 7L13.5 5L15 7V9H9V7Z" fill="#FDE047" />
+    <path d="M12 10C8.68629 10 6 12.6863 6 16C6 19.3137 8.68629 22 12 22C15.3137 22 18 19.3137 18 16C18 12.6863 15.3137 10 12 10Z" fill="#7DD3FC" />
+    <circle cx="9" cy="15" r="1" fill="#0369A1" />
+    <circle cx="15" cy="15" r="1" fill="#0369A1" />
+    <path d="M10 18.5C10 18.5 11 19.5 12 19.5C13 19.5 14 18.5 14 18.5" stroke="#0369A1" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
 
-i18n.use(initReactI18next).init({
-  resources,
-  lng: "zh",
-  fallbackLng: "zh",
-  interpolation: { escapeValue: false }
-});
+const GirlIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="10" fill="#FFF1F2" />
+    {/* Tiara */}
+    <path d="M8 8C8 8 10 6 12 6C14 6 16 8 16 8L15 10H9L8 8Z" fill="#FDE047" />
+    <circle cx="12" cy="6" r="1" fill="#EAB308" />
+    <path d="M12 10C8.68629 10 6 12.6863 6 16C6 19.3137 8.68629 22 12 22C15.3137 22 18 19.3137 18 16C18 12.6863 15.3137 10 12 10Z" fill="#FB7185" />
+    <circle cx="9" cy="15" r="1" fill="#9F1239" />
+    <circle cx="15" cy="15" r="1" fill="#9F1239" />
+    <path d="M10 18.5C10 18.5 11 19.5 12 19.5C13 19.5 14 18.5 14 18.5" stroke="#9F1239" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
 
 export default function App() {
-  const { t, i18n: i18nInstance } = useTranslation();
-  const isEn = i18nInstance.language.startsWith('en');
-  
-  const [assessmentData, setAssessmentData] = useState<AssessmentData>(() => {
+  const { t, i18n } = useTranslation();
+  const [assessmentData, setAssessmentData] = useState<any>(() => {
     const saved = localStorage.getItem('growth_assessment');
     return saved ? JSON.parse(saved) : {
       gender: 'boy',
@@ -64,34 +52,207 @@ export default function App() {
     };
   });
 
-  const handleAssessmentSubmit = (data: AssessmentData) => {
+  // Dynamic SEO Update
+  useEffect(() => {
+    document.title = `${t('title')} - ${t('aiPredictor')}`;
+    document.documentElement.lang = i18n.language;
+    
+    // Update Meta Description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', `${t('subtitle')}. ${t('seoContent1')}`);
+    }
+
+    // Update Meta Keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', t('seoKeywords'));
+
+    // Update Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.origin + window.location.pathname);
+
+    // Update Hreflang Tags
+    const languages = ['en', 'zh', 'ja', 'ko', 'es', 'pt', 'de'];
+    languages.forEach(lang => {
+      let link = document.querySelector(`link[hreflang="${lang}"]`);
+      if (!link) {
+        link = document.createElement('link');
+        link.setAttribute('rel', 'alternate');
+        link.setAttribute('hreflang', lang);
+        document.head.appendChild(link);
+      }
+      // In a real multi-page app, this would point to the localized URL
+      // For this SPA, we point to the main origin
+      link.setAttribute('href', window.location.origin + window.location.pathname);
+    });
+
+    // Add x-default hreflang
+    let xDefault = document.querySelector('link[hreflang="x-default"]');
+    if (!xDefault) {
+      xDefault = document.createElement('link');
+      xDefault.setAttribute('rel', 'alternate');
+      xDefault.setAttribute('hreflang', 'x-default');
+      document.head.appendChild(xDefault);
+    }
+    xDefault.setAttribute('href', window.location.origin + window.location.pathname);
+  }, [t, i18n.language]);
+
+  const handleAssessmentSubmit = (data: any) => {
     setAssessmentData(data);
     localStorage.setItem('growth_assessment', JSON.stringify(data));
   };
 
   const records = useMemo(() => {
-    if (!assessmentData?.measurements) return [];
-    return assessmentData.measurements
-      .filter((m) => m.height && m.weight)
-      .map((m, index) => {
-        const ageInMonths = Number((differenceInDays(parseISO(m.date), parseISO(assessmentData.birthday)) / 30.4375).toFixed(2));
-        return {
-          id: `record-${index}`,
-          date: m.date,
-          ageInMonths,
-          height: parseFloat(m.height),
-          weight: parseFloat(m.weight),
-        };
-      }).sort((a, b) => a.ageInMonths - b.ageInMonths);
+    if (!assessmentData || !assessmentData.measurements) return [];
+    
+    return assessmentData.measurements.map((m: any, index: number) => {
+      const ageInMonths = Number((differenceInDays(parseISO(m.date), parseISO(assessmentData.birthday)) / 30.4375).toFixed(2));
+      
+      return {
+        id: `record-${index}`,
+        childId: 'child',
+        date: m.date,
+        ageInMonths,
+        height: parseFloat(m.height),
+        weight: parseFloat(m.weight),
+        headCircumference: 0,
+      };
+    }).sort((a: any, b: any) => a.ageInMonths - b.ageInMonths);
   }, [assessmentData]);
 
   const latestRecord = records[records.length - 1];
 
+  const prediction = useMemo(() => {
+    return predictHeight(
+      assessmentData.gender,
+      parseFloat(assessmentData.fatherHeight || '0'),
+      parseFloat(assessmentData.motherHeight || '0'),
+      latestRecord?.height,
+      latestRecord?.ageInMonths
+    );
+  }, [assessmentData.gender, assessmentData.fatherHeight, assessmentData.motherHeight, latestRecord]);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-6">
-      <div className="fixed top-4 right-4 z-50">
+    <div className="min-h-screen pb-10 md:pb-20 pt-6 md:pt-12">
+      {/* Language Switcher Floating */}
+      <div className="fixed top-4 right-4 md:top-6 md:right-6 z-50">
         <LanguageSwitcher />
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* 左侧：输入区域 */}
+      <main className="max-w-5xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
+        {/* SEO Hidden H1 */}
+        <h1 className="sr-only">{t('title')} - {t('aiPredictor')}</h1>
+
+        {/* Left Column: Editor */}
+        <div className="lg:col-span-5">
+          <div className="sticky top-8">
+            <GrowthAssessmentForm 
+              initialData={assessmentData} 
+              onSubmit={handleAssessmentSubmit} 
+            />
+          </div>
+        </div>
+
+        {/* Right Column: Charts */}
+        <div className="lg:col-span-7 space-y-10">
+          <HeightPredictor 
+            gender={assessmentData.gender}
+            fatherHeight={assessmentData.fatherHeight}
+            motherHeight={assessmentData.motherHeight}
+            latestHeight={latestRecord?.height}
+            latestAgeInMonths={latestRecord?.ageInMonths}
+          />
+
+          {prediction && (
+            <SharePoster 
+              gender={assessmentData.gender} 
+              predictedHeight={prediction.final} 
+            />
+          )}
+
+          <section className="bg-white p-10 rounded-[3rem] shadow-sm border border-black/5 space-y-10">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-zinc-900 flex items-center">
+                <TrendingUp className="w-6 h-6 mr-2 text-indigo-500" />
+                {t('trends')}
+              </h3>
+            </div>
+            
+            <div className="space-y-10">
+              <GrowthChart 
+                gender={assessmentData.gender} 
+                type="height" 
+                records={records} 
+                title={t('heightChartTitle')} 
+                unit={t('unitHeight')} 
+              />
+              <GrowthChart 
+                gender={assessmentData.gender} 
+                type="weight" 
+                records={records} 
+                title={t('weightChartTitle')} 
+                unit={t('unitWeight')} 
+              />
+            </div>
+          </section>
+        </div>
+      </main>
+
+      {/* SEO Content Section */}
+      <footer className="max-w-5xl mx-auto px-4 md:px-6 mt-12 md:mt-16 mb-10">
+        <div className="bg-white/50 backdrop-blur-sm p-6 md:p-12 rounded-[2.5rem] md:rounded-[3rem] border border-black/5 space-y-6">
+          <h2 className="text-xl md:text-2xl font-black text-zinc-900 tracking-tight leading-tight">
+            {t('seoTitle')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-zinc-600 leading-relaxed">
+            <div className="space-y-4">
+              <p className="text-sm md:text-base opacity-80">
+                {t('seoContent1')}
+              </p>
+            </div>
+            <div className="space-y-4">
+              <p className="text-sm md:text-base opacity-80">
+                {t('seoContent2')}
+              </p>
+            </div>
+          </div>
+
+          {/* FAQ Section for SEO */}
+          <div className="pt-8 border-t border-black/5 space-y-8">
+            <h2 className="text-lg font-black text-zinc-900 uppercase tracking-widest">{t('faqTitle')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <h3 className="font-bold text-zinc-800">{t('faqQ1')}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{t('faqA1')}</p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-bold text-zinc-800">{t('faqQ2')}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{t('faqA2')}</p>
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <h3 className="font-bold text-zinc-800">{t('faqQ3')}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{t('faqA3')}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center sm:text-left">
+              © 2026 Baby Growth Dashboard • {t('reference')}
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

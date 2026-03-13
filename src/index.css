@@ -7,10 +7,10 @@
 
 @layer base {
   body {
-    @apply bg-[#FFFDF5] text-zinc-900 antialiased;
-    background-image: radial-gradient(#FFD700 0.5px, transparent 0.5px);
-    background-size: 24px 24px;
-    background-opacity: 0.1;
+    @apply bg-[#FAFAFE] text-zinc-900 antialiased;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(244, 63, 94, 0.03) 0px, transparent 50%);
   }
 }
 
