@@ -13,7 +13,7 @@ import { SharePoster } from './components/SharePoster';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { predictHeight } from './services/growthCalculations';
 
-// --- 图标定义保持不变 ---
+// --- Icon Components ---
 const BoyIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" fill="#F0F9FF" />
@@ -40,7 +40,7 @@ const GirlIcon = () => (
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  // --- 核心改动：不再读取 localStorage，初始数据永远为空 ---
+  // --- 彻底不存储：初始化始终为空，不读取 localStorage ---
   const [assessmentData, setAssessmentData] = useState<any>({
     gender: 'boy',
     birthday: new Date().toISOString().split('T')[0],
@@ -49,7 +49,7 @@ export default function App() {
     measurements: [{ date: new Date().toISOString().split('T')[0], height: '', weight: '' }]
   });
 
-  // SEO 更新逻辑
+  // Dynamic SEO Update (保留 SEO 权重)
   useEffect(() => {
     document.title = `${t('title')} - ${t('aiPredictor')}`;
     document.documentElement.lang = i18n.language;
@@ -59,6 +59,7 @@ export default function App() {
       metaDescription.setAttribute('content', `${t('subtitle')}. ${t('seoContent1')}`);
     }
 
+    // Canonical URL
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement('link');
@@ -68,7 +69,7 @@ export default function App() {
     canonical.setAttribute('href', window.location.origin + window.location.pathname);
   }, [t, i18n.language]);
 
-  // --- 核心改动：只更新内存状态，不再写入 localStorage ---
+  // --- 核心改动：只更新状态，不写入 localStorage ---
   const handleAssessmentSubmit = (data: any) => {
     setAssessmentData(data);
   };
@@ -77,17 +78,16 @@ export default function App() {
     if (!assessmentData || !assessmentData.measurements) return [];
     
     return assessmentData.measurements
-      .filter((m: any) => m.height && m.weight) // 只记录完整填写的行
+      .filter((m: any) => m.height && m.height !== '')
       .map((m: any, index: number) => {
         const ageInMonths = Number((differenceInDays(parseISO(m.date), parseISO(assessmentData.birthday)) / 30.4375).toFixed(2));
-        
         return {
           id: `record-${index}`,
           childId: 'child',
           date: m.date,
           ageInMonths,
           height: parseFloat(m.height),
-          weight: parseFloat(m.weight),
+          weight: parseFloat(m.weight) || 0,
           headCircumference: 0,
         };
       }).sort((a: any, b: any) => a.ageInMonths - b.ageInMonths);
@@ -96,17 +96,15 @@ export default function App() {
   const latestRecord = records[records.length - 1];
 
   const prediction = useMemo(() => {
-    // 如果没有输入身高或父母身高，不生成预测
     if (!latestRecord?.height || !assessmentData.fatherHeight || !assessmentData.motherHeight) return null;
-    
     return predictHeight(
       assessmentData.gender,
-      parseFloat(assessmentData.fatherHeight || '0'),
-      parseFloat(assessmentData.motherHeight || '0'),
-      latestRecord?.height,
-      latestRecord?.ageInMonths
+      parseFloat(assessmentData.fatherHeight),
+      parseFloat(assessmentData.motherHeight),
+      latestRecord.height,
+      latestRecord.ageInMonths
     );
-  }, [assessmentData.gender, assessmentData.fatherHeight, assessmentData.motherHeight, latestRecord]);
+  }, [assessmentData, latestRecord]);
 
   return (
     <div className="min-h-screen pb-10 md:pb-20 pt-6 md:pt-12">
@@ -117,6 +115,7 @@ export default function App() {
       <main className="max-w-5xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
         <h1 className="sr-only">{t('title')} - {t('aiPredictor')}</h1>
 
+        {/* Left Column: Form */}
         <div className="lg:col-span-5">
           <div className="sticky top-8">
             <GrowthAssessmentForm 
@@ -126,6 +125,7 @@ export default function App() {
           </div>
         </div>
 
+        {/* Right Column: Prediction & Charts */}
         <div className="lg:col-span-7 space-y-10">
           <HeightPredictor 
             gender={assessmentData.gender}
@@ -170,6 +170,7 @@ export default function App() {
         </div>
       </main>
 
+      {/* SEO Content Section (补全所有文案) */}
       <footer className="max-w-5xl mx-auto px-4 md:px-6 mt-12 md:mt-16 mb-10">
         <div className="bg-white/50 backdrop-blur-sm p-6 md:p-12 rounded-[2.5rem] md:rounded-[3rem] border border-black/5 space-y-6">
           <h2 className="text-xl md:text-2xl font-black text-zinc-900 tracking-tight leading-tight">
@@ -183,6 +184,26 @@ export default function App() {
               <p className="text-sm md:text-base opacity-80">{t('seoContent2')}</p>
             </div>
           </div>
+
+          {/* FAQ Section */}
+          <div className="pt-8 border-t border-black/5 space-y-8">
+            <h2 className="text-lg font-black text-zinc-900 uppercase tracking-widest">{t('faqTitle')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <h3 className="font-bold text-zinc-800">{t('faqQ1')}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{t('faqA1')}</p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-bold text-zinc-800">{t('faqQ2')}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{t('faqA2')}</p>
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <h3 className="font-bold text-zinc-800">{t('faqQ3')}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{t('faqA3')}</p>
+              </div>
+            </div>
+          </div>
+
           <div className="pt-6 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center sm:text-left">
               © 2026 Baby Growth Dashboard • {t('reference')}
