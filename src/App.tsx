@@ -62,7 +62,7 @@ export default function App() {
                 <Award className="w-8 h-8 text-indigo-600" />
                 BabyGrow AI
               </h1>
-              <p className="text-slate-500 text-sm mt-1 font-medium">杭州程序猿爸爸为爱发电的 AI 育儿工具</p>
+              <p className="text-slate-500 text-sm mt-1 font-medium"></p>
             </div>
             <GrowthAssessmentForm initialData={assessmentData} onSubmit={handleAssessmentSubmit} />
           </div>
@@ -129,3 +129,7 @@ export default function App() {
             </div>
           </article>
         </div>
+      </main>
+    </div>
+  );
+}
