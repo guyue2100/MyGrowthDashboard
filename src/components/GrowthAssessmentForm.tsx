@@ -1,26 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ruler, Weight, Calendar, ChevronRight, Plus, Trash2 } from 'lucide-react';
-import { Gender } from '../services/growthCalculations';
-
-export interface Measurement {
-  date: string;
-  height: string;
-  weight: string;
-}
-
-export interface AssessmentData {
-  gender: Gender;
-  birthday: string;
-  fatherHeight?: string;
-  motherHeight?: string;
-  measurements: Measurement[];
-}
-
-interface GrowthAssessmentFormProps {
-  initialData?: AssessmentData | null;
-  onSubmit: (data: AssessmentData) => void;
-}
 
 const BoyIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
@@ -45,8 +25,103 @@ const GirlIcon = () => (
   </svg>
 );
 
-export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ initialData, onSubmit }) => {
+export const GrowthAssessmentForm = ({ initialData, onSubmit }: any) => {
   const { t } = useTranslation();
-  const [gender, setGender] = useState<Gender>(initialData?.gender || 'boy');
+  const [gender, setGender] = useState(initialData?.gender || 'boy');
   const [birthday, setBirthday] = useState(initialData?.birthday || '');
   const [fatherHeight, setFatherHeight] = useState(initialData?.fatherHeight || '');
+  const [motherHeight, setMotherHeight] = useState(initialData?.motherHeight || '');
+  const [measurements, setMeasurements] = useState(initialData?.measurements || [{ date: new Date().toISOString().split('T')[0], height: '', weight: '' }]);
+
+  const formatDisplayDate = (dateStr: string) => dateStr ? dateStr.replace(/-/g, '.') : 'YYYY.MM.DD';
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    onSubmit({ gender, birthday, fatherHeight, motherHeight, measurements });
+  };
+
+  const updateMeasurement = (index: number, field: string, value: string) => {
+    const next = [...measurements];
+    next[index] = { ...next[index], [field]: value };
+    setMeasurements(next);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-black/5 space-y-8">
+      <div className="space-y-6 p-6 bg-[#FFF9E6] rounded-[2rem] border border-[#FFEBB3] grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+        {/* 性别 */}
+        <div className="space-y-4">
+          <label className="block text-xs font-bold text-[#D4A017] uppercase tracking-widest">{t('gender')}</label>
+          <div className="flex gap-4">
+            {['boy', 'girl'].map((g) => (
+              <button key={g} type="button" onClick={() => setGender(g)} 
+                className={`flex-1 p-4 rounded-2xl border-4 transition-all ${gender === g ? (g === 'boy' ? 'border-[#7DD3FC] bg-white shadow-[0_6px_0_0_#7DD3FC] -translate-y-1' : 'border-[#F9A8D4] bg-white shadow-[0_6px_0_0_#F9A8D4] -translate-y-1') : 'border-transparent opacity-40'}`}>
+                {g === 'boy' ? <BoyIcon /> : <GirlIcon />}
+                <span className="block mt-2 font-black text-xs text-zinc-600">{t(g)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 生日：点分隔格式 */}
+        <div className="space-y-4">
+          <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('birthday')}</label>
+          <div className="relative flex items-center bg-white p-4 rounded-xl border border-zinc-100 min-h-[56px]">
+            <Calendar className="w-5 h-5 text-zinc-300 mr-3" />
+            <span className="text-sm font-mono font-medium text-zinc-900">{formatDisplayDate(birthday)}</span>
+            <input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer" required />
+          </div>
+        </div>
+
+        {/* 父母身高 */}
+        {['fatherHeight', 'motherHeight'].map((field) => (
+          <div key={field} className="space-y-4">
+            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t(field)} (cm)</label>
+            <div className="flex items-center bg-white p-4 rounded-xl border border-zinc-100">
+              <Ruler className="w-5 h-5 text-zinc-300 mr-3" />
+              <input type="number" step="0.1" value={field === 'fatherHeight' ? fatherHeight : motherHeight} onChange={(e) => field === 'fatherHeight' ? setFatherHeight(e.target.value) : setMotherHeight(e.target.value)} placeholder="170" className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 记录列表 */}
+      <div className="space-y-6">
+        <div className="flex justify-between items-center px-2">
+          <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('measurements')}</label>
+          <button type="button" onClick={() => setMeasurements([...measurements, { date: new Date().toISOString().split('T')[0], height: '', weight: '' }])} className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-4 py-2 rounded-full uppercase tracking-widest hover:scale-105 transition-transform">
+            <Plus className="w-3 h-3 inline mr-1" /> {t('addRecord')}
+          </button>
+        </div>
+        {measurements.map((m: any, i: number) => (
+          <div key={i} className="p-6 border border-zinc-100 rounded-[2rem] bg-white relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="relative flex items-center border-b border-zinc-50 py-2">
+                <Calendar className="w-4 h-4 text-zinc-300 mr-2" />
+                <span className="text-sm font-mono">{formatDisplayDate(m.date)}</span>
+                <input type="date" value={m.date} onChange={(e) => updateMeasurement(i, 'date', e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer" />
+              </div>
+              <div className="flex items-center border-b border-zinc-50 py-2">
+                <Ruler className="w-4 h-4 text-zinc-300 mr-2" />
+                <input type="number" step="0.1" value={m.height} onChange={(e) => updateMeasurement(i, 'height', e.target.value)} placeholder="cm" className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono" required />
+              </div>
+              <div className="flex items-center border-b border-zinc-50 py-2">
+                <Weight className="w-4 h-4 text-zinc-300 mr-2" />
+                <input type="number" step="0.01" value={m.weight} onChange={(e) => updateMeasurement(i, 'weight', e.target.value)} placeholder="kg" className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono" required />
+              </div>
+            </div>
+            {measurements.length > 1 && (
+              <button type="button" onClick={() => setMeasurements(measurements.filter((_, idx) => idx !== i))} className="absolute -top-2 -right-2 bg-white text-zinc-300 hover:text-red-400 p-2 rounded-full shadow-sm border border-zinc-50 transition-colors">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <button type="submit" className="w-full bg-[#FFD700] text-[#8B4513] py-5 rounded-[2rem] font-black text-lg flex items-center justify-center shadow-[0_8px_0_0_#DAA520] hover:bg-[#FFC800] active:translate-y-2 active:shadow-none transition-all">
+        {t('calculate')} <ChevronRight className="w-6 h-6 ml-2" />
+      </button>
+    </form>
+  );
+};
