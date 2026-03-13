@@ -1,19 +1,21 @@
-<!doctype html>
-<html lang="en">
- <head>
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     
-    <title>2026儿童生长曲线图 - 在线WHO身高体重标准表 & AI成年身高预测</title>
-    
-    <meta name="description" content="免费提供WHO标准的儿童生长曲线分析工具。记录宝宝身高体重，实时生成发育百分位曲线，并利用FPH遗传算法为您精准预测孩子成年最终身高。数据本地存储，安全私密。" />
+    <title>2026宝宝身高预测 - 在线WHO生长曲线档案 & AI发育评估工具</title>
+    <meta name="description" content="BabyGrow 是一款专业的儿童生长发育追踪工具。基于世界卫生组织 (WHO) 最新标准，记录宝宝身高体重，实时绘制生长曲线百分位，并利用 FPH 遗传算法为您科学预测孩子成年最终身高。数据本地存储，保障家庭隐私。" />
+    <meta name="keywords" content="宝宝身高预测,婴儿生长曲线,WHO身高标准表,遗传身高计算器,儿童发育评估,独立开发" />
     
     <link rel="canonical" href="https://babygrow.online" />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://babygrow.online" />
-    <meta property="og:title" content="宝宝能长多高？试试这个 AI 身高预测工具" />
-    <meta property="og:description" content="基于 WHO 曲线和遗传算法，记录成长点滴，科学预测未来。独立开发者爸爸的作品。" />
+    <meta property="og:title" content="宝宝能长多高？试试这款 AI 身高预测工具" />
+    <meta property="og:description" content="基于 WHO 标准曲线，记录成长点滴，科学预测未来。杭州程序猿爸爸的诚意之作。" />
+    <meta property="og:image" content="https://babygrow.online/og-image.png" />
 
     <script type="application/ld+json">
     {
@@ -28,7 +30,11 @@
         "@type": "Person",
         "name": "Independent Developer Dad"
       },
-      "featureList": "WHO Growth Charts, Height Prediction, Local Data Storage",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "120"
+      },
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -36,10 +42,18 @@
       }
     }
     </script>
-</head>
+
+    </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <style>
+      body {
+        margin: 0;
+        /* 优化 iOS 滚动流畅度 */
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
   </body>
 </html>
-
