@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ruler, Weight, Calendar, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Gender } from '../services/growthCalculations';
-// 1. 引入你之前创建好的埋点工具函数
-import { trackEvent } from '../lib/gtag';
+// --- 【核心修改：引用名称对齐你的文件名】 ---
+import { trackEvent } from '../lib/TypeScript'; 
 
 export interface Measurement {
   date: string;
@@ -62,11 +62,6 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
   const handleAddMeasurement = () => {
     if (measurements.length < 10) {
-      // 【埋点：记录用户尝试添加更多数据点】
-      trackEvent('add_measurement_row', { 
-        category: 'Engagement', 
-        value: measurements.length + 1 
-      });
       setMeasurements([...measurements, { date: new Date().toISOString().split('T')[0], height: '', weight: '' }]);
     }
   };
@@ -85,15 +80,19 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!birthday || measurements.some(m => !m.date || !m.height || !m.weight)) return;
+    
+    // 表单验证逻辑
+    if (!birthday || measurements.some(m => !m.date || !m.height || !m.weight)) {
+      alert("请填写完整的宝宝信息及至少两条测量记录哦！");
+      return;
+    }
 
-    // --- 【核心埋点：计算点击】 ---
+    // --- 【埋点触发】 ---
     trackEvent('click_calculate_curve', {
       category: 'Engagement',
       label: gender,
-      value: measurements.length // 记录用户输入了多少条数据
+      value: measurements.length
     });
-    // ---------------------------
 
     onSubmit({ gender, birthday, fatherHeight, motherHeight, measurements });
   };
@@ -106,7 +105,6 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
       </div>
 
       <div className="space-y-8">
-        {/* Profile Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-[2rem] border border-slate-100">
           <div className="space-y-4">
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{t('gender')}</label>
@@ -187,7 +185,6 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
           </div>
         </div>
 
-        {/* Measurements Section */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('measurements')}</label>
