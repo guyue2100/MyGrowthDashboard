@@ -1,10 +1,8 @@
-// src/components/GrowthAssessmentForm.tsx
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ruler, Weight, Calendar, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Gender } from '../services/growthCalculations';
-// 引用路径对齐你最新的文件名 TypeScript.ts
-import { trackEvent } from '../lib/TypeScript'; 
+import { trackEvent } from '../lib/TypeScript';
 
 export interface Measurement {
   date: string;
@@ -25,7 +23,6 @@ interface GrowthAssessmentFormProps {
   onSubmit: (data: AssessmentData) => void;
 }
 
-// SVG 图标组件 (BoyIcon, GirlIcon)
 const BoyIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" fill="#F0F9FF" />
@@ -62,13 +59,9 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
     ]
   );
 
-  // 性别选择处理（含埋点）
   const handleGenderSelect = (selectedGender: Gender) => {
     setGender(selectedGender);
-    trackEvent('select_gender', {
-      category: 'Engagement',
-      label: selectedGender
-    });
+    trackEvent('select_gender', { label: selectedGender });
   };
 
   const handleAddMeasurement = () => {
@@ -92,153 +85,87 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!birthday || measurements.some(m => !m.date || !m.height || !m.weight)) {
-      alert("请填写完整的信息哦！");
+      alert("请填写完整信息");
       return;
     }
 
-    // 埋点：点击计算曲线
-    trackEvent('click_calculate_curve', {
-      category: 'Engagement',
+    trackEvent('click_calculate_curve', { 
       label: gender,
-      value: measurements.length
+      value: measurements.length 
     });
 
     onSubmit({ gender, birthday, fatherHeight, motherHeight, measurements });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-black/5 space-y-6 max-w-full">
-      <div className="space-y-1">
-        <h3 className="text-xl font-bold text-zinc-900">{t('measurements')}</h3>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-black/5 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-[2rem]">
+        <div className="space-y-4">
+          <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{t('gender')}</label>
+          <div className="flex space-x-4">
+            <button
+              type="button"
+              onClick={() => handleGenderSelect('boy')}
+              className={`flex-1 flex flex-col items-center p-4 rounded-2xl border-4 transition-all ${
+                gender === 'boy' ? 'border-sky-400 bg-white shadow-sm' : 'border-transparent opacity-60'
+              }`}
+            >
+              <BoyIcon />
+              <span className={`font-black text-sm mt-2 ${gender === 'boy' ? 'text-sky-600' : 'text-zinc-400'}`}>{t('boy')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleGenderSelect('girl')}
+              className={`flex-1 flex flex-col items-center p-4 rounded-2xl border-4 transition-all ${
+                gender === 'girl' ? 'border-rose-400 bg-white shadow-sm' : 'border-transparent opacity-60'
+              }`}
+            >
+              <GirlIcon />
+              <span className={`font-black text-sm mt-2 ${gender === 'girl' ? 'text-rose-600' : 'text-zinc-400'}`}>{t('girl')}</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('birthday')}</label>
+          <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
+            <Calendar className="w-5 h-5 text-zinc-400 mr-2" />
+            <input
+              type="date"
+              value={birthday}
+              onChange={(e) => setBirthday(e.target.value)}
+              className="w-full bg-transparent border-none focus:ring-0 font-medium"
+              required
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-[2rem] border border-slate-100">
-          <div className="space-y-4">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{t('gender')}</label>
-            <div className="flex space-x-4">
-              <button
-                type="button"
-                onClick={() => handleGenderSelect('boy')}
-                className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border-4 transition-all duration-300 ${
-                  gender === 'boy' ? 'border-sky-400 bg-white shadow-sm' : 'border-transparent bg-white/50 opacity-60'
-                }`}
-              >
-                <div className="mb-2"><BoyIcon /></div>
-                <span className={`font-black text-sm ${gender === 'boy' ? 'text-sky-600' : 'text-zinc-400'}`}>{t('boy')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleGenderSelect('girl')}
-                className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border-4 transition-all duration-300 ${
-                  gender === 'girl' ? 'border-rose-400 bg-white shadow-sm' : 'border-transparent bg-white/50 opacity-60'
-                }`}
-              >
-                <div className="mb-2"><GirlIcon /></div>
-                <span className={`font-black text-sm ${gender === 'girl' ? 'text-rose-600' : 'text-zinc-400'}`}>{t('girl')}</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('birthday')}</label>
-            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
-              <Calendar className="w-5 h-5 text-zinc-400 mr-2" />
-              <input
-                type="date"
-                value={birthday}
-                onChange={(e) => setBirthday(e.target.value)}
-                className="w-full bg-transparent border-none focus:ring-0 font-medium"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('fatherHeight')} (cm)</label>
-            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
-              <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
-              <input
-                type="number"
-                step="0.1"
-                value={fatherHeight}
-                onChange={(e) => setFatherHeight(e.target.value)}
-                placeholder="175"
-                className="w-full bg-transparent border-none focus:ring-0 font-medium"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('motherHeight')} (cm)</label>
-            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
-              <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
-              <input
-                type="number"
-                step="0.1"
-                value={motherHeight}
-                onChange={(e) => setMotherHeight(e.target.value)}
-                placeholder="162"
-                className="w-full bg-transparent border-none focus:ring-0 font-medium"
-              />
-            </div>
-          </div>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('measurements')}</label>
+          <button type="button" onClick={handleAddMeasurement} className="text-xs font-black text-indigo-500 bg-indigo-50 px-4 py-2 rounded-full flex items-center">
+            <Plus className="w-4 h-4 mr-1" /> {t('addRecord')}
+          </button>
         </div>
-
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('measurements')}</label>
-            {measurements.length < 10 && (
-              <button
-                type="button"
-                onClick={handleAddMeasurement}
-                className="text-xs font-black text-indigo-500 flex items-center bg-indigo-50 px-4 py-2 rounded-full"
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                {t('addRecord')}
-              </button>
-            )}
+        
+        {measurements.map((m, index) => (
+          <div key={index} className="p-6 border border-zinc-100 rounded-3xl bg-white shadow-sm space-y-4 relative">
+             <div className="flex justify-between items-center mb-2">
+               <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full">#{index+1}</span>
+               {measurements.length > 1 && (
+                 <button type="button" onClick={() => handleRemoveMeasurement(index)} className="text-zinc-300 hover:text-red-400">
+                   <Trash2 className="w-4 h-4" />
+                 </button>
+               )}
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="date" value={m.date} onChange={(e) => handleUpdateMeasurement(index, 'date', e.target.value)} className="border-b border-zinc-100 py-1 text-sm outline-none" />
+                <input type="number" step="0.1" value={m.height} placeholder="身高 (cm)" onChange={(e) => handleUpdateMeasurement(index, 'height', e.target.value)} className="border-b border-zinc-100 py-1 text-sm outline-none" />
+                <input type="number" step="0.01" value={m.weight} placeholder="体重 (kg)" onChange={(e) => handleUpdateMeasurement(index, 'weight', e.target.value)} className="border-b border-zinc-100 py-1 text-sm outline-none" />
+             </div>
           </div>
-
-          <div className="space-y-4">
-            {measurements.map((m, index) => (
-              <div key={index} className="relative p-6 border border-zinc-100 rounded-3xl bg-white shadow-sm space-y-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full">#{index + 1}</span>
-                  {measurements.length > 1 && (
-                    <button type="button" onClick={() => handleRemoveMeasurement(index)} className="text-zinc-200 hover:text-red-400">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('date')}</label>
-                    <div className="flex items-center border-b border-zinc-100 py-1">
-                      <Calendar className="w-4 h-4 text-zinc-300 mr-2" />
-                      <input type="date" value={m.date} onChange={(e) => handleUpdateMeasurement(index, 'date', e.target.value)} className="w-full bg-transparent border-none text-sm font-medium" required />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('height')} (cm)</label>
-                    <div className="flex items-center border-b border-zinc-100 py-1">
-                      <Ruler className="w-4 h-4 text-zinc-300 mr-2" />
-                      <input type="number" step="0.1" value={m.height} onChange={(e) => handleUpdateMeasurement(index, 'height', e.target.value)} placeholder="0.0" className="w-full bg-transparent border-none text-sm font-medium" required />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('weight')} (kg)</label>
-                    <div className="flex items-center border-b border-zinc-100 py-1">
-                      <Weight className="w-4 h-4 text-zinc-300 mr-2" />
-                      <input type="number" step="0.01" value={m.weight} onChange={(e) => handleUpdateMeasurement(index, 'weight', e.target.value)} placeholder="0.00" className="w-full bg-transparent border-none text-sm font-medium" required />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
 
       <button
