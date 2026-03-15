@@ -3,15 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
 import { Download, Share2, Sparkles } from 'lucide-react';
-// --- 1. 导入埋点工具函数 ---
-import { trackEvent } from '../lib/gtag';
+// --- 核心修复：将 gtag 修改为 TypeScript ---
+import { trackEvent } from '../lib/TypeScript';
 
 interface SharePosterProps {
   gender: 'boy' | 'girl';
   predictedHeight: number;
 }
-
-// ... BoyCartoon 和 GirlCartoon 组件代码保持不变 ...
 
 const BoyCartoon = () => (
   <svg viewBox="0 0 200 200" className="w-48 h-48 drop-shadow-xl">
@@ -59,13 +57,11 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
         quality: 1 
       });
 
-      // --- 2. 【核心埋点：记录转化成功】 ---
       trackEvent('save_poster_success', {
         category: 'Conversion',
         label: `${gender}_poster`,
         value: Math.round(predictedHeight) 
       });
-      // ------------------------------------
 
       const link = document.createElement('a');
       link.download = `babygrow-prediction-${new Date().getTime()}.png`;
@@ -74,12 +70,10 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
     } catch (err) {
       console.error('Snapshot failed', err);
       
-      // --- 3. 【异常埋点：记录失败原因】 ---
       trackEvent('save_poster_error', { 
         category: 'Error', 
         label: err instanceof Error ? err.message : 'unknown' 
       });
-      // ------------------------------------
       
     } finally {
       setIsGenerating(false);
@@ -92,7 +86,6 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
         <button
           onClick={() => {
             setShowModal(true);
-            // --- 4. 【可选埋点：记录弹窗触发】 ---
             trackEvent('click_share_button', { category: 'Engagement', label: gender });
           }}
           className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-black transition-all active:scale-95 shadow-xl hover:shadow-2xl ${
@@ -106,7 +99,6 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
         </button>
       </div>
 
-      {/* ... 其余 Modal 和 Poster 渲染代码完全保持不变 ... */}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
@@ -115,14 +107,12 @@ export const SharePoster: React.FC<SharePosterProps> = ({ gender, predictedHeigh
           ></div>
           
           <div className="relative z-10 w-full max-w-[260px] bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-zinc-100">
-            {/* Header */}
             <div className={`py-3 px-4 text-center ${gender === 'boy' ? 'bg-sky-50/50' : 'bg-rose-50/50'}`}>
               <h3 className={`text-sm font-black ${gender === 'boy' ? 'text-sky-600' : 'text-rose-600'} tracking-tight`}>
                 {gender === 'boy' ? t('boyPosterTitle') : t('girlPosterTitle')}
               </h3>
             </div>
 
-            {/* Content */}
             <div className="p-4 space-y-4 text-center">
               <div className="space-y-0.5">
                 <p className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.1em]">{t('predictedHeight')}</p>
