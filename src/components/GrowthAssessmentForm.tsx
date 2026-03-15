@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ruler, Weight, Calendar, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Gender } from '../services/growthCalculations';
-import { trackEvent } from '../lib/TypeScript';
+// --- 【关键修正：匹配你的文件名 TypeScript】 ---
+import { trackEvent } from '../lib/TypeScript'; 
 
 export interface Measurement {
   date: string;
@@ -59,11 +60,6 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
     ]
   );
 
-  const handleGenderSelect = (selectedGender: Gender) => {
-    setGender(selectedGender);
-    trackEvent('select_gender', { label: selectedGender });
-  };
-
   const handleAddMeasurement = () => {
     if (measurements.length < 10) {
       setMeasurements([...measurements, { date: new Date().toISOString().split('T')[0], height: '', weight: '' }]);
@@ -84,93 +80,198 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 表单验证逻辑
     if (!birthday || measurements.some(m => !m.date || !m.height || !m.weight)) {
-      alert("请填写完整信息");
+      alert("请填写完整的宝宝信息及至少两条测量记录哦！");
       return;
     }
 
-    trackEvent('click_calculate_curve', { 
+    // --- 【埋点触发】 ---
+    trackEvent('click_calculate_curve', {
+      category: 'Engagement',
       label: gender,
-      value: measurements.length 
+      value: measurements.length
     });
 
     onSubmit({ gender, birthday, fatherHeight, motherHeight, measurements });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-black/5 space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-[2rem]">
-        <div className="space-y-4">
-          <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{t('gender')}</label>
-          <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={() => handleGenderSelect('boy')}
-              className={`flex-1 flex flex-col items-center p-4 rounded-2xl border-4 transition-all ${
-                gender === 'boy' ? 'border-sky-400 bg-white shadow-sm' : 'border-transparent opacity-60'
-              }`}
-            >
-              <BoyIcon />
-              <span className={`font-black text-sm mt-2 ${gender === 'boy' ? 'text-sky-600' : 'text-zinc-400'}`}>{t('boy')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleGenderSelect('girl')}
-              className={`flex-1 flex flex-col items-center p-4 rounded-2xl border-4 transition-all ${
-                gender === 'girl' ? 'border-rose-400 bg-white shadow-sm' : 'border-transparent opacity-60'
-              }`}
-            >
-              <GirlIcon />
-              <span className={`font-black text-sm mt-2 ${gender === 'girl' ? 'text-rose-600' : 'text-zinc-400'}`}>{t('girl')}</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('birthday')}</label>
-          <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
-            <Calendar className="w-5 h-5 text-zinc-400 mr-2" />
-            <input
-              type="date"
-              value={birthday}
-              onChange={(e) => setBirthday(e.target.value)}
-              className="w-full bg-transparent border-none focus:ring-0 font-medium"
-              required
-            />
-          </div>
-        </div>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-black/5 space-y-6 max-w-full">
+      <div className="space-y-1">
+        <h3 className="text-xl font-bold text-zinc-900">{t('measurements')}</h3>
+        <p className="text-xs text-zinc-400">{t('subtitle')}</p>
       </div>
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('measurements')}</label>
-          <button type="button" onClick={handleAddMeasurement} className="text-xs font-black text-indigo-500 bg-indigo-50 px-4 py-2 rounded-full flex items-center">
-            <Plus className="w-4 h-4 mr-1" /> {t('addRecord')}
-          </button>
-        </div>
-        
-        {measurements.map((m, index) => (
-          <div key={index} className="p-6 border border-zinc-100 rounded-3xl bg-white shadow-sm space-y-4 relative">
-             <div className="flex justify-between items-center mb-2">
-               <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full">#{index+1}</span>
-               {measurements.length > 1 && (
-                 <button type="button" onClick={() => handleRemoveMeasurement(index)} className="text-zinc-300 hover:text-red-400">
-                   <Trash2 className="w-4 h-4" />
-                 </button>
-               )}
-             </div>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="date" value={m.date} onChange={(e) => handleUpdateMeasurement(index, 'date', e.target.value)} className="border-b border-zinc-100 py-1 text-sm outline-none" />
-                <input type="number" step="0.1" value={m.height} placeholder="身高 (cm)" onChange={(e) => handleUpdateMeasurement(index, 'height', e.target.value)} className="border-b border-zinc-100 py-1 text-sm outline-none" />
-                <input type="number" step="0.01" value={m.weight} placeholder="体重 (kg)" onChange={(e) => handleUpdateMeasurement(index, 'weight', e.target.value)} className="border-b border-zinc-100 py-1 text-sm outline-none" />
-             </div>
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-[2rem] border border-slate-100">
+          <div className="space-y-4">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{t('gender')}</label>
+            <div className="flex space-x-4">
+              <button
+                type="button"
+                onClick={() => setGender('boy')}
+                className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border-4 transition-all duration-300 ${
+                  gender === 'boy' 
+                    ? 'border-sky-400 bg-white shadow-[0_8px_0_0_rgba(56,189,248,0.2)] -translate-y-1' 
+                    : 'border-transparent bg-white/50 text-zinc-400 opacity-60 hover:opacity-100'
+                }`}
+              >
+                <div className="mb-2 transform transition-transform group-hover:scale-110">
+                  <BoyIcon />
+                </div>
+                <span className={`font-black text-sm ${gender === 'boy' ? 'text-sky-600' : 'text-zinc-400'}`}>{t('boy')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setGender('girl')}
+                className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border-4 transition-all duration-300 ${
+                  gender === 'girl' 
+                    ? 'border-rose-400 bg-white shadow-[0_8px_0_0_rgba(251,113,133,0.2)] -translate-y-1' 
+                    : 'border-transparent bg-white/50 text-zinc-400 opacity-60 hover:opacity-100'
+                }`}
+              >
+                <div className="mb-2 transform transition-transform group-hover:scale-110">
+                  <GirlIcon />
+                </div>
+                <span className={`font-black text-sm ${gender === 'girl' ? 'text-rose-600' : 'text-zinc-400'}`}>{t('girl')}</span>
+              </button>
+            </div>
           </div>
-        ))}
+
+          <div className="space-y-4">
+            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('birthday')}</label>
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+              <Calendar className="w-5 h-5 text-zinc-400 mr-2" />
+              <input
+                type="date"
+                value={birthday}
+                onChange={(e) => setBirthday(e.target.value)}
+                className="w-full bg-transparent border-none focus:ring-0 font-medium"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('fatherHeight')} (cm)</label>
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+              <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
+              <input
+                type="number"
+                step="0.1"
+                value={fatherHeight}
+                onChange={(e) => setFatherHeight(e.target.value)}
+                placeholder="175"
+                className="w-full bg-transparent border-none focus:ring-0 font-medium"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('motherHeight')} (cm)</label>
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+              <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
+              <input
+                type="number"
+                step="0.1"
+                value={motherHeight}
+                onChange={(e) => setMotherHeight(e.target.value)}
+                placeholder="162"
+                className="w-full bg-transparent border-none focus:ring-0 font-medium"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('measurements')}</label>
+            {measurements.length < 10 && (
+              <button
+                type="button"
+                onClick={handleAddMeasurement}
+                className="text-xs font-black text-indigo-500 flex items-center hover:text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full transition-all hover:scale-105 active:scale-95"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                {t('addRecord')}
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            {measurements.map((m, index) => (
+              <div key={index} className="relative p-6 border border-zinc-100 rounded-3xl space-y-6 bg-white shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-tighter">#{index + 1}</span>
+                  {measurements.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveMeasurement(index)}
+                      className="text-zinc-200 hover:text-red-400 transition-colors p-2 hover:bg-red-50 rounded-full"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('date')}</label>
+                    <div className="flex items-center border-b border-zinc-100 focus-within:border-indigo-500 py-1 transition-colors">
+                      <Calendar className="w-4 h-4 text-zinc-300 mr-2" />
+                      <input
+                        type="date"
+                        value={m.date}
+                        onChange={(e) => handleUpdateMeasurement(index, 'date', e.target.value)}
+                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('height')} ({t('unitHeight')})</label>
+                    <div className="flex items-center border-b border-zinc-100 focus-within:border-indigo-500 py-1 transition-colors">
+                      <Ruler className="w-4 h-4 text-zinc-300 mr-2" />
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={m.height}
+                        onChange={(e) => handleUpdateMeasurement(index, 'height', e.target.value)}
+                        placeholder="0.0"
+                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('weight')} ({t('unitWeight')})</label>
+                    <div className="flex items-center border-b border-zinc-100 focus-within:border-indigo-500 py-1 transition-colors">
+                      <Weight className="w-4 h-4 text-zinc-300 mr-2" />
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={m.weight}
+                        onChange={(e) => handleUpdateMeasurement(index, 'weight', e.target.value)}
+                        placeholder="0.00"
+                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg flex items-center justify-center hover:bg-indigo-700 transition-all shadow-md active:translate-y-1"
+        className="w-full bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg flex items-center justify-center hover:bg-indigo-700 transition-all shadow-[0_8px_0_0_rgba(79,70,229,0.2)] active:shadow-none active:translate-y-2"
       >
         {t('calculate')}
         <ChevronRight className="w-6 h-6 ml-2" />
