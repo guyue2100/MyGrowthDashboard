@@ -1,20 +1,29 @@
 // src/lib/TypeScript.ts
-export const GA_TRACKING_ID = 'G-0MTELQGND1';
 
-export const trackEvent = (action: string, { category, label, value }: {
-  category: string;
-  label?: string;
-  value?: number;
-}) => {
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', action, {
-      event_category: category,
-      event_label: label,
-      value: value,
+// 声明全局 window 对象中的 gtag
+declare global {
+  interface Window {
+    gtag: (
+      type: string,
+      action: string,
+      params?: {
+        event_category?: string;
+        event_label?: string;
+        value?: number;
+        [key: string]: any;
+      }
+    ) => void;
+  }
+}
+
+// 导出统一的埋点函数
+export const trackEvent = (action: string, params?: any) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', action, {
+      ...params,
+      // 这里的 category 默认设为 Engagement
+      event_category: params?.category || 'Engagement',
+      event_label: params?.label || '',
     });
-    // 增加一条日志，方便你在浏览器 F12 控制台看到埋点是否触发
-    console.log(`✅ GA埋点已发送: ${action}`, { category, label, value });
-  } else {
-    console.warn("❌ 未找到 gtag，请检查 index.html 是否正确安装了 GA4 脚本");
   }
 };
