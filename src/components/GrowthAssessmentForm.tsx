@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ruler, Weight, Calendar, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Gender } from '../services/growthCalculations';
-// --- 【核心修改：引用名称对齐你的文件名】 ---
+// --- 【关键修正：匹配你的文件名 TypeScript】 ---
 import { trackEvent } from '../lib/TypeScript'; 
 
 export interface Measurement {
