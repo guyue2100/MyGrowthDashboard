@@ -1,8 +1,9 @@
+// src/components/GrowthAssessmentForm.tsx
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ruler, Weight, Calendar, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Gender } from '../services/growthCalculations';
-// --- 【关键修正：匹配你的文件名 TypeScript】 ---
+// 引用路径对齐你最新的文件名 TypeScript.ts
 import { trackEvent } from '../lib/TypeScript'; 
 
 export interface Measurement {
@@ -24,6 +25,7 @@ interface GrowthAssessmentFormProps {
   onSubmit: (data: AssessmentData) => void;
 }
 
+// SVG 图标组件 (BoyIcon, GirlIcon)
 const BoyIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" fill="#F0F9FF" />
@@ -60,6 +62,15 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
     ]
   );
 
+  // 性别选择处理（含埋点）
+  const handleGenderSelect = (selectedGender: Gender) => {
+    setGender(selectedGender);
+    trackEvent('select_gender', {
+      category: 'Engagement',
+      label: selectedGender
+    });
+  };
+
   const handleAddMeasurement = () => {
     if (measurements.length < 10) {
       setMeasurements([...measurements, { date: new Date().toISOString().split('T')[0], height: '', weight: '' }]);
@@ -80,14 +91,12 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // 表单验证逻辑
     if (!birthday || measurements.some(m => !m.date || !m.height || !m.weight)) {
-      alert("请填写完整的宝宝信息及至少两条测量记录哦！");
+      alert("请填写完整的信息哦！");
       return;
     }
 
-    // --- 【埋点触发】 ---
+    // 埋点：点击计算曲线
     trackEvent('click_calculate_curve', {
       category: 'Engagement',
       label: gender,
@@ -101,7 +110,6 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-black/5 space-y-6 max-w-full">
       <div className="space-y-1">
         <h3 className="text-xl font-bold text-zinc-900">{t('measurements')}</h3>
-        <p className="text-xs text-zinc-400">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-8">
@@ -111,30 +119,22 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
             <div className="flex space-x-4">
               <button
                 type="button"
-                onClick={() => setGender('boy')}
+                onClick={() => handleGenderSelect('boy')}
                 className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border-4 transition-all duration-300 ${
-                  gender === 'boy' 
-                    ? 'border-sky-400 bg-white shadow-[0_8px_0_0_rgba(56,189,248,0.2)] -translate-y-1' 
-                    : 'border-transparent bg-white/50 text-zinc-400 opacity-60 hover:opacity-100'
+                  gender === 'boy' ? 'border-sky-400 bg-white shadow-sm' : 'border-transparent bg-white/50 opacity-60'
                 }`}
               >
-                <div className="mb-2 transform transition-transform group-hover:scale-110">
-                  <BoyIcon />
-                </div>
+                <div className="mb-2"><BoyIcon /></div>
                 <span className={`font-black text-sm ${gender === 'boy' ? 'text-sky-600' : 'text-zinc-400'}`}>{t('boy')}</span>
               </button>
               <button
                 type="button"
-                onClick={() => setGender('girl')}
+                onClick={() => handleGenderSelect('girl')}
                 className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border-4 transition-all duration-300 ${
-                  gender === 'girl' 
-                    ? 'border-rose-400 bg-white shadow-[0_8px_0_0_rgba(251,113,133,0.2)] -translate-y-1' 
-                    : 'border-transparent bg-white/50 text-zinc-400 opacity-60 hover:opacity-100'
+                  gender === 'girl' ? 'border-rose-400 bg-white shadow-sm' : 'border-transparent bg-white/50 opacity-60'
                 }`}
               >
-                <div className="mb-2 transform transition-transform group-hover:scale-110">
-                  <GirlIcon />
-                </div>
+                <div className="mb-2"><GirlIcon /></div>
                 <span className={`font-black text-sm ${gender === 'girl' ? 'text-rose-600' : 'text-zinc-400'}`}>{t('girl')}</span>
               </button>
             </div>
@@ -142,7 +142,7 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
           <div className="space-y-4">
             <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('birthday')}</label>
-            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
               <Calendar className="w-5 h-5 text-zinc-400 mr-2" />
               <input
                 type="date"
@@ -156,7 +156,7 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
           <div className="space-y-4">
             <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('fatherHeight')} (cm)</label>
-            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
               <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
               <input
                 type="number"
@@ -171,7 +171,7 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
           <div className="space-y-4">
             <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('motherHeight')} (cm)</label>
-            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 focus-within:border-indigo-500 transition-colors shadow-sm">
+            <div className="flex items-center bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
               <Ruler className="w-5 h-5 text-zinc-400 mr-2" />
               <input
                 type="number"
@@ -192,7 +192,7 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
               <button
                 type="button"
                 onClick={handleAddMeasurement}
-                className="text-xs font-black text-indigo-500 flex items-center hover:text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full transition-all hover:scale-105 active:scale-95"
+                className="text-xs font-black text-indigo-500 flex items-center bg-indigo-50 px-4 py-2 rounded-full"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 {t('addRecord')}
@@ -202,15 +202,11 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
           <div className="space-y-4">
             {measurements.map((m, index) => (
-              <div key={index} className="relative p-6 border border-zinc-100 rounded-3xl space-y-6 bg-white shadow-sm">
+              <div key={index} className="relative p-6 border border-zinc-100 rounded-3xl bg-white shadow-sm space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-tighter">#{index + 1}</span>
+                  <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full">#{index + 1}</span>
                   {measurements.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMeasurement(index)}
-                      className="text-zinc-200 hover:text-red-400 transition-colors p-2 hover:bg-red-50 rounded-full"
-                    >
+                    <button type="button" onClick={() => handleRemoveMeasurement(index)} className="text-zinc-200 hover:text-red-400">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
@@ -219,47 +215,23 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('date')}</label>
-                    <div className="flex items-center border-b border-zinc-100 focus-within:border-indigo-500 py-1 transition-colors">
+                    <div className="flex items-center border-b border-zinc-100 py-1">
                       <Calendar className="w-4 h-4 text-zinc-300 mr-2" />
-                      <input
-                        type="date"
-                        value={m.date}
-                        onChange={(e) => handleUpdateMeasurement(index, 'date', e.target.value)}
-                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
-                        required
-                      />
+                      <input type="date" value={m.date} onChange={(e) => handleUpdateMeasurement(index, 'date', e.target.value)} className="w-full bg-transparent border-none text-sm font-medium" required />
                     </div>
                   </div>
-
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('height')} ({t('unitHeight')})</label>
-                    <div className="flex items-center border-b border-zinc-100 focus-within:border-indigo-500 py-1 transition-colors">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('height')} (cm)</label>
+                    <div className="flex items-center border-b border-zinc-100 py-1">
                       <Ruler className="w-4 h-4 text-zinc-300 mr-2" />
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={m.height}
-                        onChange={(e) => handleUpdateMeasurement(index, 'height', e.target.value)}
-                        placeholder="0.0"
-                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
-                        required
-                      />
+                      <input type="number" step="0.1" value={m.height} onChange={(e) => handleUpdateMeasurement(index, 'height', e.target.value)} placeholder="0.0" className="w-full bg-transparent border-none text-sm font-medium" required />
                     </div>
                   </div>
-
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('weight')} ({t('unitWeight')})</label>
-                    <div className="flex items-center border-b border-zinc-100 focus-within:border-indigo-500 py-1 transition-colors">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">{t('weight')} (kg)</label>
+                    <div className="flex items-center border-b border-zinc-100 py-1">
                       <Weight className="w-4 h-4 text-zinc-300 mr-2" />
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={m.weight}
-                        onChange={(e) => handleUpdateMeasurement(index, 'weight', e.target.value)}
-                        placeholder="0.00"
-                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-medium"
-                        required
-                      />
+                      <input type="number" step="0.01" value={m.weight} onChange={(e) => handleUpdateMeasurement(index, 'weight', e.target.value)} placeholder="0.00" className="w-full bg-transparent border-none text-sm font-medium" required />
                     </div>
                   </div>
                 </div>
@@ -271,7 +243,7 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg flex items-center justify-center hover:bg-indigo-700 transition-all shadow-[0_8px_0_0_rgba(79,70,229,0.2)] active:shadow-none active:translate-y-2"
+        className="w-full bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg flex items-center justify-center hover:bg-indigo-700 transition-all shadow-md active:translate-y-1"
       >
         {t('calculate')}
         <ChevronRight className="w-6 h-6 ml-2" />
