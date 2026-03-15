@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Ruler, Weight, Calendar, Baby, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { Ruler, Weight, Calendar, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Gender } from '../services/growthCalculations';
+// 1. 引入你之前创建好的埋点工具函数
+import { trackEvent } from '../lib/gtag';
 
 export interface Measurement {
   date: string;
@@ -60,6 +62,11 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
 
   const handleAddMeasurement = () => {
     if (measurements.length < 10) {
+      // 【埋点：记录用户尝试添加更多数据点】
+      trackEvent('add_measurement_row', { 
+        category: 'Engagement', 
+        value: measurements.length + 1 
+      });
       setMeasurements([...measurements, { date: new Date().toISOString().split('T')[0], height: '', weight: '' }]);
     }
   };
@@ -79,6 +86,15 @@ export const GrowthAssessmentForm: React.FC<GrowthAssessmentFormProps> = ({ init
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!birthday || measurements.some(m => !m.date || !m.height || !m.weight)) return;
+
+    // --- 【核心埋点：计算点击】 ---
+    trackEvent('click_calculate_curve', {
+      category: 'Engagement',
+      label: gender,
+      value: measurements.length // 记录用户输入了多少条数据
+    });
+    // ---------------------------
+
     onSubmit({ gender, birthday, fatherHeight, motherHeight, measurements });
   };
 
