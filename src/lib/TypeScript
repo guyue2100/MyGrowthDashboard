@@ -11,7 +11,6 @@ export const trackEvent = (action: string, { category, label, value }: {
       event_category: category,
       event_label: label,
       value: value,
-      language: document.documentElement.lang || 'zh-CN'
     });
   }
 };
